@@ -1,0 +1,48 @@
+/**
+ * @link https://www.typescriptlang.org/tsconfig
+ * @link https://vuejs.org/guide/typescript/overview#configuring-tsconfig-json
+ * @link https://vitejs.dev/guide/features#typescript-compiler-options
+ */
+
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "lib": ["esnext", "dom"],
+    "useDefineForClassFields": true,
+    "experimentalDecorators": true,
+    // baseUrl tells the compiler where to find modules
+    // Required when using non-relative module imports
+    "baseUrl": ".",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    // Path mapping for non-relative module imports
+    // Calculated based on baseUrl configuration
+    // Should be synchronized with alias in vite.config
+    "paths": {
+      "@/*": ["src/*"],
+      "@@/*": ["src/common/*"]
+    },
+    "resolveJsonModule": true,
+    "types": ["vite/client", "element-plus/global"],
+    // Allow importing files with .ts, .mts, .tsx extensions
+    "allowImportingTsExtensions": true,
+    // Allow JavaScript files
+    "allowJs": true,
+    // TypeScript strict mode
+    "strict": true,
+    "importHelpers": true,
+    // Don't emit compiled files, only perform type checking
+    "noEmit": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
+  },
+  // Files to be included in compilation
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.d.ts"],
+  // Files to exclude from compilation
+  "exclude": ["node_modules", "dist"]
+}

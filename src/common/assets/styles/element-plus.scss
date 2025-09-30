@@ -1,0 +1,20 @@
+// Custom Element Plus styles
+
+// Card
+.el-card {
+  background-color: var(--el-bg-color) !important;
+}
+
+// Pagination
+.el-pagination {
+  // Refer to Bootstrap's responsive design WIDTH = 768
+  @media screen and (max-width: 768px) {
+    .el-pagination__total,
+    .el-pagination__sizes,
+    .el-pagination__jump,
+    .btn-prev,
+    .btn-next {
+      display: none;
+    }
+  }
+}

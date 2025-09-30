@@ -1,0 +1,5 @@
+# Global TypeScript type checking (this operation will increase git commit time)
+npx vue-tsc
+
+# Execute tasks configured in lint-staged
+npx lint-staged

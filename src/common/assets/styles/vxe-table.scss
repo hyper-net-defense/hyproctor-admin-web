@@ -1,0 +1,38 @@
+// Custom Vxe Table styles
+
+.vxe-grid {
+  // Form
+  &--form-wrapper {
+    .vxe-form {
+      padding: 10px 20px;
+      margin-bottom: 20px;
+    }
+  }
+
+  // Toolbar
+  &--toolbar-wrapper {
+    .vxe-toolbar {
+      padding: 20px;
+    }
+  }
+
+  // Pagination
+  &--pager-wrapper {
+    .vxe-pager {
+      height: 70px;
+      padding: 0 20px;
+      &--wrapper {
+        // Refer to Bootstrap's responsive design WIDTH = 768
+        @media screen and (max-width: 768px) {
+          .vxe-pager--total,
+          .vxe-pager--sizes,
+          .vxe-pager--jump,
+          .vxe-pager--jump-prev,
+          .vxe-pager--jump-next {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
