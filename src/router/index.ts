@@ -79,7 +79,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        component: () => import('@/pages/placeholder/index.vue'),
+        component: () => import('@/pages/organization/index.vue'),
         name: 'Organization',
         meta: {
           title: 'Organization',
@@ -109,7 +109,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        component: () => import('@/pages/placeholder/index.vue'),
+        component: () => import('@/pages/signed-app/index.vue'),
         name: 'Signed App',
         meta: {
           title: 'Signed App',
@@ -139,7 +139,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        component: () => import('@/pages/placeholder/index.vue'),
+        component: () => import('@/pages/vpn-app/index.vue'),
         name: 'VPN App',
         meta: {
           title: 'VPN App',
@@ -154,7 +154,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        component: () => import('@/pages/placeholder/index.vue'),
+        component: () => import('@/pages/remote-app/index.vue'),
         name: 'Remote App',
         meta: {
           title: 'Remote App',
@@ -169,7 +169,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        component: () => import('@/pages/placeholder/index.vue'),
+        component: () => import('@/pages/virtual-camera/index.vue'),
         name: 'Virtual Camera',
         meta: {
           title: 'Virtual Camera',
@@ -184,7 +184,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        component: () => import('@/pages/placeholder/index.vue'),
+        component: () => import('@/pages/vm-app/index.vue'),
         name: 'VM App',
         meta: {
           title: 'VM App',
@@ -199,7 +199,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        component: () => import('@/pages/placeholder/index.vue'),
+        component: () => import('@/pages/notification-email/index.vue'),
         name: 'Notification Email',
         meta: {
           title: 'Notification Email',
