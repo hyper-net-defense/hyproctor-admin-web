@@ -4,6 +4,9 @@ interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string;
   readonly VITE_ROUTER_HISTORY: 'hash' | 'html5';
   readonly VITE_PUBLIC_PATH: string;
+  readonly VITE_MEMBERSTACK_PUBLIC_KEY: string;
+  readonly DEV: boolean;
+  readonly PROD: boolean;
 }
 
 interface ImportMeta {

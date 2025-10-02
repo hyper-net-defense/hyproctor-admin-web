@@ -11,7 +11,7 @@ const permission: Directive = {
     const { value: permissionRoles } = binding;
     const { user } = useUserStore();
     if (isArray(permissionRoles) && permissionRoles.length > 0) {
-      const hasPermission = user.roles.some(role => permissionRoles.includes(role));
+      const hasPermission = user.roles.some((role: string) => permissionRoles.includes(role));
       hasPermission || el.parentNode?.removeChild(el);
     } else {
       throw new Error(`Argument must be a non-empty array, example: v-permission="['admin', 'editor']"`);

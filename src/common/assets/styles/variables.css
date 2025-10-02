@@ -6,7 +6,7 @@
   --v3-body-bg-color: var(--el-bg-color-page);
   /* Header area = NavigationBar component + TagsView component */
   --v3-header-height: calc(
-    var(--v3-navigationbar-height) + var(--v3-tagsview-height) + var(--v3-header-border-bottom-width)
+    var(--v3-navigationbar-height) + var(--v3-header-border-bottom-width) + var(--v3-tagsview-height)
   );
   --v3-header-bg-color: var(--el-bg-color);
   --v3-header-box-shadow: var(--el-box-shadow-lighter);
@@ -26,7 +26,7 @@
   --v3-sidebar-menu-text-color: #cfd3dc;
   --v3-sidebar-menu-active-text-color: #ffffff;
   /* TagsView component */
-  --v3-tagsview-height: 34px;
+  --v3-tagsview-height: 14px;
   --v3-tagsview-text-color: var(--el-text-color-regular);
   --v3-tagsview-tag-active-text-color: #ffffff;
   --v3-tagsview-tag-bg-color: var(--el-bg-color);
