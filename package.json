@@ -4,10 +4,12 @@
   "version": "0.0.1",
   "description": "Hyproctor admin website injected in Webflow.",
   "author": "Vlad Sychov",
+  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "https://github.com/hypernetdefense"
   },
+  "main": "eslint.config.js",
   "scripts": {
     "dev": "vite",
     "build:staging": "vue-tsc && vite build --mode staging",
@@ -64,9 +66,7 @@
   "lint-staged": {
     "*": "eslint --fix"
   },
-  "main": "eslint.config.js",
   "directories": {
     "test": "tests"
-  },
-  "license": "ISC"
+  }
 }

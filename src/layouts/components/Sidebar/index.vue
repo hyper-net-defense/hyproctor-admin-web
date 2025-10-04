@@ -4,8 +4,8 @@ import { useLayoutMode } from '@@/composables/useLayoutMode';
 import { getCssVar } from '@@/utils/css';
 import { useAppStore } from '@/pinia/stores/app';
 import { usePermissionStore } from '@/pinia/stores/permission';
-import { constantRoutes } from '@/router';
 import { useSettingsStore } from '@/pinia/stores/settings';
+import { constantRoutes } from '@/router';
 import { Logo } from '../index';
 import Item from './Item.vue';
 

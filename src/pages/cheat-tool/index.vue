@@ -1,106 +1,8 @@
-<template>
-  <div class="app-container">
-    <el-card shadow="never" class="search-wrapper">
-      <el-form :inline="true" :model="searchData" ref="searchFormRef">
-        <el-form-item label="Name">
-          <el-input v-model="searchData.name" placeholder="Search by name" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">Search</el-button>
-          <el-button @click="resetSearch">Reset</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
-
-    <el-card v-loading="loading" shadow="never">
-      <div class="toolbar-wrapper">
-        <div>
-          <el-button type="primary" @click="openDialog()">Add New</el-button>
-        </div>
-        <div>
-          <el-button type="primary" :icon="RefreshRight" circle @click="searchList" />
-        </div>
-      </div>
-
-      <div class="table-wrapper">
-        <el-table :data="list" style="width:100%">
-          <el-table-column prop="name" label="Name" />
-          <el-table-column prop="domain" label="Domain" />
-          <el-table-column prop="link" label="Link">
-            <template #default="{ row }">
-              <a :href="row.link" target="_blank">{{ row.link }}</a>
-            </template>
-          </el-table-column>
-          <el-table-column prop="ip_list" label="IPs">
-            <template #default="{ row }">
-              <div v-if="row.ip_list && row.ip_list.length">
-                <el-tag v-for="ip in row.ip_list" :key="ip" class="ip-tag">{{ ip }}</el-tag>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column prop="process_win" label="Win-Process" />
-          <el-table-column prop="process_mac" label="Mac-Process" />
-          <el-table-column fixed="right" label="Action" width="140">
-            <template #default="{ row }">
-              <el-tooltip content="Edit">
-                <el-button type="text" icon="el-icon-edit" @click="openDialog(row)" />
-              </el-tooltip>
-              <el-tooltip content="Delete">
-                <el-button type="text" icon="el-icon-delete" @click="confirmDelete(row)" />
-              </el-tooltip>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-
-      <div class="pager-wrapper">
-        <el-pagination
-          background
-          :layout="pagination.layout"
-          :page-sizes="pagination.pageSizes"
-          :total="pagination.total"
-          :page-size="pagination.pageSize"
-          :current-page="pagination.currentPage"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
-
-    <el-dialog v-model="dialogVisible" :title="dialogTitle">
-      <el-form :model="formData" ref="formRef" label-width="120px">
-        <el-form-item label="Name">
-          <el-input v-model="formData.name" />
-        </el-form-item>
-        <el-form-item label="Domain">
-          <el-input v-model="formData.domain" />
-        </el-form-item>
-        <el-form-item label="Link">
-          <el-input v-model="formData.link" />
-        </el-form-item>
-        <el-form-item label="IPs (comma separated)">
-          <el-input v-model="ipString" />
-        </el-form-item>
-        <el-form-item label="Win Process">
-          <el-input v-model="formData.process_win" />
-        </el-form-item>
-        <el-form-item label="Mac Process">
-          <el-input v-model="formData.process_mac" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" :loading="confirmLoading" @click="handleSave">Save</el-button>
-      </template>
-    </el-dialog>
-  </div>
-</template>
-
 <script lang="ts" setup>
-import { ref, reactive, watch } from 'vue';
-import { getCheatToolList, updateCheatTool, deleteCheatTool, addCheatTool } from '@/common/apis/cheat_tool';
 import { usePagination } from '@@/composables/usePagination';
-import { Search, RefreshRight } from '@element-plus/icons-vue';
+import { RefreshRight, Search } from '@element-plus/icons-vue';
+import { reactive, ref, watch } from 'vue';
+import { addCheatTool, deleteCheatTool, getCheatToolList, updateCheatTool } from '@/common/apis/cheat_tool';
 
 const loading = ref(false);
 const confirmLoading = ref(false);
@@ -202,6 +104,7 @@ async function handleSave() {
       ElMessage.error(res?.message || 'Save failed');
     }
   } catch (e) {
+    console.log(e);
     ElMessage.error('Save failed');
   } finally {
     confirmLoading.value = false;
@@ -237,6 +140,7 @@ async function searchList() {
       ElMessage.error(res?.message || 'Failed to load');
     }
   } catch (e) {
+    console.log(e);
     list.value = [];
   } finally {
     loading.value = false;
@@ -246,11 +150,132 @@ async function searchList() {
 watch([() => pagination.currentPage, () => pagination.pageSize], searchList, { immediate: true });
 </script>
 
+<template>
+  <div class="app-container">
+    <el-card shadow="never" class="search-wrapper">
+      <el-form :inline="true" :model="searchData" ref="searchFormRef">
+        <el-form-item label="Name">
+          <el-input v-model="searchData.name" placeholder="Search by name" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :icon="Search" @click="handleSearch">
+            Search
+          </el-button>
+          <el-button @click="resetSearch">
+            Reset
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <el-card v-loading="loading" shadow="never">
+      <div class="toolbar-wrapper">
+        <div>
+          <el-button type="primary" @click="openDialog()">
+            Add New
+          </el-button>
+        </div>
+        <div>
+          <el-button type="primary" :icon="RefreshRight" circle @click="searchList" />
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <el-table :data="list" style="width:100%">
+          <el-table-column prop="name" label="Name" />
+          <el-table-column prop="domain" label="Domain" />
+          <el-table-column prop="link" label="Link">
+            <template #default="{ row }">
+              <a :href="row.link" target="_blank">{{ row.link }}</a>
+            </template>
+          </el-table-column>
+          <el-table-column prop="ip_list" label="IPs">
+            <template #default="{ row }">
+              <div v-if="row.ip_list && row.ip_list.length">
+                <el-tag v-for="ip in row.ip_list" :key="ip" class="ip-tag">
+                  {{ ip }}
+                </el-tag>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="process_win" label="Win-Process" />
+          <el-table-column prop="process_mac" label="Mac-Process" />
+          <el-table-column fixed="right" label="Action" width="140">
+            <template #default="{ row }">
+              <el-tooltip content="Edit">
+                <el-button type="text" icon="el-icon-edit" @click="openDialog(row)" />
+              </el-tooltip>
+              <el-tooltip content="Delete">
+                <el-button type="text" icon="el-icon-delete" @click="confirmDelete(row)" />
+              </el-tooltip>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <div class="pager-wrapper">
+        <el-pagination
+          background
+          :layout="pagination.layout"
+          :page-sizes="pagination.pageSizes"
+          :total="pagination.total"
+          :page-size="pagination.pageSize"
+          :current-page="pagination.currentPage"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </el-card>
+
+    <el-dialog v-model="dialogVisible" :title="dialogTitle">
+      <el-form :model="formData" ref="formRef" label-width="120px">
+        <el-form-item label="Name">
+          <el-input v-model="formData.name" />
+        </el-form-item>
+        <el-form-item label="Domain">
+          <el-input v-model="formData.domain" />
+        </el-form-item>
+        <el-form-item label="Link">
+          <el-input v-model="formData.link" />
+        </el-form-item>
+        <el-form-item label="IPs (comma separated)">
+          <el-input v-model="ipString" />
+        </el-form-item>
+        <el-form-item label="Win Process">
+          <el-input v-model="formData.process_win" />
+        </el-form-item>
+        <el-form-item label="Mac Process">
+          <el-input v-model="formData.process_mac" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">
+          Cancel
+        </el-button>
+        <el-button type="primary" :loading="confirmLoading" @click="handleSave">
+          Save
+        </el-button>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
 <style scoped>
-.search-wrapper { margin-bottom: 20px }
-.toolbar-wrapper { display:flex; justify-content:space-between; margin-bottom: 20px }
-.table-wrapper { margin-bottom: 20px }
-.pager-wrapper { display:flex; justify-content:flex-end }
+.search-wrapper {
+  margin-bottom: 20px;
+}
+.toolbar-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.table-wrapper {
+  margin-bottom: 20px;
+}
+.pager-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
 
 .ip-tag {
   background-color: #19be6b;

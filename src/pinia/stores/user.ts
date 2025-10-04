@@ -11,7 +11,7 @@ export const useUserStore = defineStore('user', () => {
 
   const getInfo = async () => {
     // noop - no remote call
-    return;
+
   };
 
   const changeRoles = (_role: string) => {

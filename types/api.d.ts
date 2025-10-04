@@ -2,6 +2,11 @@
 interface ApiResponseData<T> {
   code?: number;
   data?: T;
+  pagination?: {
+    total: number;
+    page: number;
+    size: number;
+  };
   message?: string;
   success: boolean;
 }

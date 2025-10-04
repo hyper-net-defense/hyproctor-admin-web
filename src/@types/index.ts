@@ -18,14 +18,10 @@ export interface IPlanDesc {
   upgrade: boolean;
 }
 
-export interface IDgKey {
-  id: string;
-  email: string;
-  pwd: string;
-  proj_id: string;
-  key: string;
-  closed: boolean;
-  credit: number;
-  checked_at: string;
-  created_at: string;
+export interface IOrganization {
+  domain: string;
+  name: string;
+  plan: number;
+  expire_at: string;
+  extra: string;
 }

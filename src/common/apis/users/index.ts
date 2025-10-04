@@ -1,22 +1,22 @@
-import type * as Users from './type';
+import type * as API from '@/@types/api';
 import { request } from '@/http/axios';
 
-export function getCurrentUser(): Promise<Users.CurrentUserResponseData> {
-  return request<Users.CurrentUserResponseData>({
+export function getCurrentUser(): Promise<API.TCurrentUserResponseData> {
+  return request<API.TCurrentUserResponseData>({
     url: '/account/user/inf',
     method: 'post'
   });
 }
 
-export function getUserList(data: any): Promise<Users.UserListResponseData> {
-  return request<Users.UserListResponseData>({
+export function getUserList(data: any): Promise<API.TUserListResponseData> {
+  return request<API.TUserListResponseData>({
     url: '/admin/user/list',
     method: 'post',
     data
   });
 }
 
-export function createUser(data: Users.CreateOrUpdateUserRequestData) {
+export function createUser(data: API.TCreateOrUpdateUserRequestData) {
   return request({
     url: '/account/create_user',
     method: 'post',
@@ -33,8 +33,8 @@ export function deleteUser(id: string) {
 }
 
 /** Update */
-export function updateStatus(data: Users.UpdateUserStatusRequestData) {
-  return request({
+export function updateStatus(data: API.TUpdateUserStatusRequestData) {
+  return request<API.TUpdateUserStatusResponseData>({
     url: '/user/update',
     method: 'post',
     data

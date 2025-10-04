@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import type { FormRules } from 'element-plus';
-import type { IUser } from 'types';
-import type { UpdateUserStatusRequestData } from '@/common/apis/users/type';
-import { getUserList, updateStatus } from '@/common/apis/users';
+import type { IUser } from '@/@types';
 import { usePagination } from '@@/composables/usePagination';
 import { Download, Refresh, RefreshRight, Search } from '@element-plus/icons-vue';
 import { cloneDeep } from 'lodash-es';
+import { getUserList, updateStatus } from '@/common/apis/users';
 
 interface UserFormData {
   ms_id?: string;
@@ -69,27 +68,30 @@ function handleUpdateStatus() {
 
   formRef.value?.validate((valid) => {
     if (!valid) {
-      ElMessage.error('Form validation failed');
+      ElMessage.error('Form validation failed.');
       return;
     }
     confirmProgress.value = true;
-    const data: UpdateUserStatusRequestData = {
+    const data = {
       ms_id: formData.value.ms_id as string,
       status: Number.parseInt(formData.value.status, 10)
     };
-    updateStatus(data).then((res: any) => {
-      if (res && res.success) {
-        ElMessage.success('Updated status successfully.');
-        dialogVisible.value = false;
-        searchUser();
-      } else {
-        ElMessage.error(res?.message || 'Failed to update status');
-      }
-    }).catch(() => {
-      ElMessage.error('Failed to update status');
-    }).finally(() => {
-      confirmProgress.value = false;
-    });
+    updateStatus(data)
+      .then((res) => {
+        if (res.success) {
+          ElMessage.success('Updated status successfully.');
+          dialogVisible.value = false;
+          searchUser();
+        } else {
+          ElMessage.error(res?.message || 'Failed to update status');
+        }
+      })
+      .catch(() => {
+        ElMessage.error('Failed to update status');
+      })
+      .finally(() => {
+        confirmProgress.value = false;
+      });
   });
 }
 
@@ -212,7 +214,7 @@ async function downloadCsv() {
     const users = (res.data && (res.data.user_list || res.data)) || [];
 
     // Build CSV
-    const headers = [ 'ms_id', 'name', 'email', 'plan', 'is_admin', 'is_tester', 'status', 'verified' ];
+    const headers = ['ms_id', 'name', 'email', 'plan', 'is_admin', 'is_tester', 'status', 'verified'];
     const rows = users.map((u: any) => headers.map(h => JSON.stringify(u[h] ?? '')).join(','));
     const csv = [headers.join(','), ...rows].join('\n');
 
@@ -228,6 +230,7 @@ async function downloadCsv() {
     URL.revokeObjectURL(url);
     ElMessage.success('CSV download started');
   } catch (e) {
+    console.log(e);
     ElMessage.error('Failed to download CSV');
   } finally {
     downloadLoading.value = false;
@@ -245,17 +248,17 @@ async function downloadCsv() {
     /> -->
     <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
-            <el-form-item prop="email" label="Email">
-              <el-input v-model="searchData.email" placeholder="Please enter" />
-            </el-form-item>
-            <el-form-item prop="name" label="Name">
-              <el-input v-model="searchData.name" placeholder="Please enter" />
-            </el-form-item>
-            <el-form-item prop="plan" label="Plan">
-              <el-select v-model="searchData.plan" placeholder="Select Plan" style="width: 160px;">
-                <el-option v-for="p in planOptions" :key="p.value" :label="p.label" :value="p.value" />
-              </el-select>
-            </el-form-item>
+        <el-form-item prop="email" label="Email">
+          <el-input v-model="searchData.email" placeholder="Please enter" />
+        </el-form-item>
+        <el-form-item prop="name" label="Name">
+          <el-input v-model="searchData.name" placeholder="Please enter" />
+        </el-form-item>
+        <el-form-item prop="plan" label="Plan">
+          <el-select v-model="searchData.plan" placeholder="Select Plan" style="width: 160px;">
+            <el-option v-for="p in planOptions" :key="p.value" :label="p.label" :value="p.value" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">
             Search
@@ -301,13 +304,19 @@ async function downloadCsv() {
                 {{ row.plan }}
               </el-tag>
               <!-- Admin / Tester badges -->
-              <el-tag v-if="row.is_admin" effect="dark" type="warning" style="background:#f90;color:#fff;border-radius:8px;margin-right:6px;" disable-transitions>Admin</el-tag>
-              <el-tag v-if="row.is_tester" effect="dark" type="success" style="background:#19be6b;color:#fff;border-radius:8px;margin-right:6px;" disable-transitions>Tester</el-tag>
+              <el-tag v-if="row.is_admin" effect="dark" type="warning" style="background:#f90;color:#fff;border-radius:8px;margin-right:6px;" disable-transitions>
+                Admin
+              </el-tag>
+              <el-tag v-if="row.is_tester" effect="dark" type="success" style="background:#19be6b;color:#fff;border-radius:8px;margin-right:6px;" disable-transitions>
+                Tester
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column fixed="right" label="Action" width="150" align="center">
             <template #default="{ row }">
-              <el-button type="primary" plain size="small" @click="handleUpdate(row)">Edit</el-button>
+              <el-button type="primary" plain size="small" @click="handleUpdate(row)">
+                Edit
+              </el-button>
             </template>
           </el-table-column>
         </el-table>

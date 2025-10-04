@@ -4,9 +4,9 @@ import { get, merge } from 'lodash-es';
 
 /** Log out and force refresh the page (will redirect to login page) */
 // No-op logout: auth removed. We do not force page reloads from axios.
-function logout() {
-  // noop
-}
+// function logout() {
+//   // noop
+// }
 
 /** Create an axios instance named instance */
 function createInstance() {
@@ -144,15 +144,16 @@ export function setAuthToken(token?: string) {
     (instance.defaults.headers as any) = (instance.defaults.headers as any) || {};
     (instance.defaults.headers as any).common = (instance.defaults.headers as any).common || {};
     if (token) {
-      (instance.defaults.headers as any).common['Authorization'] = `Bearer ${token}`;
+      (instance.defaults.headers as any).common.Authorization = `Bearer ${token}`;
       // also set top-level header for compatibility
-      (instance.defaults.headers as any)['Authorization'] = `Bearer ${token}`;
+      (instance.defaults.headers as any).Authorization = `Bearer ${token}`;
     } else {
-      delete (instance.defaults.headers as any).common['Authorization'];
-      delete (instance.defaults.headers as any)['Authorization'];
+      delete (instance.defaults.headers as any).common.Authorization;
+      delete (instance.defaults.headers as any).Authorization;
     }
   } catch (e) {
     // ignore
+    console.log(e);
   }
 }
 
@@ -163,8 +164,9 @@ export function setAuthToken(token?: string) {
 export function getAuthTokenHeader(): string | undefined {
   try {
     const headers = (instance.defaults.headers as any) || {};
-    return headers.common?.['Authorization'] || headers['Authorization'];
+    return headers.common?.Authorization || headers.Authorization;
   } catch (e) {
+    console.log(e);
     return undefined;
   }
 }

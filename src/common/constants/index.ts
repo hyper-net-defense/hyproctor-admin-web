@@ -1,4 +1,4 @@
-import type { IUser } from 'types';
+import type { IUser } from '@/@types';
 
 export const InitialUser: IUser = {
   ms_id: '',
@@ -16,4 +16,11 @@ export const InitialUser: IUser = {
   status: 0,
   roles: ['admin'],
   is_admin: false
+};
+
+export const Membership = {
+  FREE: 0,
+  PRO: 1,
+  ENTERPRISE: 2,
+  COUNT: 3
 };

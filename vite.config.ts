@@ -58,17 +58,12 @@ export default defineConfig(({ mode }) => {
       // Proxy configuration
       proxy: {
         '/dev': {
-          target: 'http://192.168.133.224:8888',
+          target: 'http://192.168.123.224:8888',
           // Enable WebSocket proxy
           ws: false,
           // Change origin for CORS
           changeOrigin: true,
           rewrite: path => path.replace(/^\/dev/, '')
-        },
-        '/credit': {
-          target: 'https://api.deepgram.com/v1',
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/credit/, '')
         }
       },
       // Enable CORS

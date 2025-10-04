@@ -1,15 +1,14 @@
 <script lang="ts" setup>
-import type { RouteLocationNormalizedGeneric, RouteRecordRaw, RouterLink } from 'vue-router';
+import type { RouteLocationNormalizedGeneric, RouteRecordRaw } from 'vue-router';
 import type { TagView } from '@/pinia/stores/tags-view';
 import { useRouteListener } from '@@/composables/useRouteListener';
-import { Close } from '@element-plus/icons-vue';
 import path from 'path-browserify';
 import { usePermissionStore } from '@/pinia/stores/permission';
 import { useTagsViewStore } from '@/pinia/stores/tags-view';
 
-const router = useRouter();
+// const router = useRouter();
 
-const route = useRoute();
+// const route = useRoute();
 
 const tagsViewStore = useTagsViewStore();
 
@@ -18,27 +17,27 @@ const permissionStore = usePermissionStore();
 const { listenerRouteChange } = useRouteListener();
 
 /** Array of tag component element refs */
-const tagRefs = useTemplateRef<InstanceType<typeof RouterLink>[]>('tagRefs');
+// const tagRefs = useTemplateRef<InstanceType<typeof RouterLink>[]>('tagRefs');
 
 /** Context menu visible state */
 const visible = ref(false);
 
 /** Context menu top position */
-const top = ref(0);
+// const top = ref(0);
 
 /** Context menu left position */
-const left = ref(0);
+// const left = ref(0);
 
 /** Currently right-clicked tag */
-const selectedTag = ref<TagView>({});
+// const selectedTag = ref<TagView>({});
 
 /** Affixed tags */
 let affixTags: TagView[] = [];
 
 /** Check if tag is active */
-function isActive(tag: TagView) {
-  return tag.path === route.path;
-}
+// function isActive(tag: TagView) {
+//   return tag.path === route.path;
+// }
 
 /** Check if tag is affixed */
 function isAffix(tag: TagView) {
@@ -84,69 +83,69 @@ function addTags(route: RouteLocationNormalizedGeneric) {
 }
 
 /** Refresh selected tag */
-function refreshSelectedTag(view: TagView) {
-  tagsViewStore.delCachedView(view);
-  router.replace({ path: `/redirect${view.path}`, query: view.query });
-}
+// function refreshSelectedTag(view: TagView) {
+//   tagsViewStore.delCachedView(view);
+//   router.replace({ path: `/redirect${view.path}`, query: view.query });
+// }
 
 /** Close selected tag */
-function closeSelectedTag(view: TagView) {
-  tagsViewStore.delVisitedView(view);
-  tagsViewStore.delCachedView(view);
-  isActive(view) && toLastView(tagsViewStore.visitedViews, view);
-}
+// function closeSelectedTag(view: TagView) {
+//   tagsViewStore.delVisitedView(view);
+//   tagsViewStore.delCachedView(view);
+//   isActive(view) && toLastView(tagsViewStore.visitedViews, view);
+// }
 
 /** Close other tags */
-function closeOthersTags() {
-  const fullPath = selectedTag.value.fullPath;
-  if (fullPath !== route.path && fullPath !== undefined) {
-    router.push(fullPath);
-  }
-  tagsViewStore.delOthersVisitedViews(selectedTag.value);
-  tagsViewStore.delOthersCachedViews(selectedTag.value);
-}
+// function closeOthersTags() {
+//   const fullPath = selectedTag.value.fullPath;
+//   if (fullPath !== route.path && fullPath !== undefined) {
+//     router.push(fullPath);
+//   }
+//   tagsViewStore.delOthersVisitedViews(selectedTag.value);
+//   tagsViewStore.delOthersCachedViews(selectedTag.value);
+// }
 
 /** Close all tags */
-function closeAllTags(view: TagView) {
-  tagsViewStore.delAllVisitedViews();
-  tagsViewStore.delAllCachedViews();
-  if (affixTags.some(tag => tag.path === route.path)) return;
-  toLastView(tagsViewStore.visitedViews, view);
-}
+// function closeAllTags(view: TagView) {
+//   tagsViewStore.delAllVisitedViews();
+//   tagsViewStore.delAllCachedViews();
+//   if (affixTags.some(tag => tag.path === route.path)) return;
+//   toLastView(tagsViewStore.visitedViews, view);
+// }
 
 /** Navigate to last view */
-function toLastView(visitedViews: TagView[], view: TagView) {
-  const latestView = visitedViews.slice(-1)[0];
-  const fullPath = latestView?.fullPath;
-  if (fullPath !== undefined) {
-    router.push(fullPath);
-  } else {
-    // If all tags are closed, redirect to home page by default
-    if (view.name === 'Dashboard') {
-      // Reload home page
-      router.push({ path: `/redirect${view.path}`, query: view.query });
-    } else {
-      router.push('/');
-    }
-  }
-}
+// function toLastView(visitedViews: TagView[], view: TagView) {
+//   const latestView = visitedViews.slice(-1)[0];
+//   const fullPath = latestView?.fullPath;
+//   if (fullPath !== undefined) {
+//     router.push(fullPath);
+//   } else {
+//     // If all tags are closed, redirect to home page by default
+//     if (view.name === 'Dashboard') {
+//       // Reload home page
+//       router.push({ path: `/redirect${view.path}`, query: view.query });
+//     } else {
+//       router.push('/');
+//     }
+//   }
+// }
 
 /** Open context menu */
-function openMenu(tag: TagView, e: MouseEvent) {
-  const menuMinWidth = 100;
-  // Current page width
-  const offsetWidth = document.body.offsetWidth;
-  // Maximum left position
-  const maxLeft = offsetWidth - menuMinWidth;
-  // Distance from mouse pointer
-  const left15 = e.clientX + 10;
-  left.value = left15 > maxLeft ? maxLeft : left15;
-  top.value = e.clientY;
-  // Show menu
-  visible.value = true;
-  // Update selected tag
-  selectedTag.value = tag;
-}
+// function openMenu(tag: TagView, e: MouseEvent) {
+//   const menuMinWidth = 100;
+//   // Current page width
+//   const offsetWidth = document.body.offsetWidth;
+//   // Maximum left position
+//   const maxLeft = offsetWidth - menuMinWidth;
+//   // Distance from mouse pointer
+//   const left15 = e.clientX + 10;
+//   left.value = left15 > maxLeft ? maxLeft : left15;
+//   top.value = e.clientY;
+//   // Show menu
+//   visible.value = true;
+//   // Update selected tag
+//   selectedTag.value = tag;
+// }
 
 /** Close context menu */
 function closeMenu() {
@@ -164,9 +163,6 @@ listenerRouteChange((route) => {
   addTags(route);
 }, true);
 </script>
-
-<template>    
-</template>
 
 <style lang="scss" scoped>
 .tags-view-container {

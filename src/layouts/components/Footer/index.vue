@@ -1,7 +1,3 @@
-<script lang="ts" setup>
-const VITE_APP_TITLE = import.meta.env.VITE_APP_TITLE;
-</script>
-
 <template>
   <footer class="layout-footer">
     @Copyright 2025 - Hyper Net Defense LLC

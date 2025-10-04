@@ -1,12 +1,3 @@
-<script lang="ts" setup>
-import { Setting } from '@element-plus/icons-vue';
-
-const show = ref(false);
-</script>
-
-<template>  
-</template>
-
 <style lang="scss" scoped>
 .handle-button {
   width: 48px;
