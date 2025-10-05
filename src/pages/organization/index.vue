@@ -47,28 +47,27 @@ const { paginationData, handleCurrentChange, handleSizeChange } = usePagination(
 const orgDialogVisible = ref<boolean>(false);
 const orgForm = ref<TOrgForm>({ domain: '', name: '' });
 const orgFormRules: FormRules<TOrgForm> = {
-  domain: [{ required: true, trigger: 'blur', message: 'Please enter the domain.' }],
-  name: [{ required: true, trigger: 'blur', message: 'Please enter the name.' }]
+  domain: [{ required: true, trigger: 'blur', message: 'The domain is required.' }],
+  name: [{ required: true, trigger: 'blur', message: 'The name is required.' }]
 };
 
 const planDialogVisible = ref<boolean>(false);
 const planForm = ref<TPlanForm>({ domain: '', plan: 0, expire_at: '', extra: '' });
 const planFormRules: FormRules<TPlanForm> = {
-  plan: [{ required: true, trigger: 'blur', message: 'Please select the plan.' }],
-  expire_at: [{ required: true, trigger: 'blur', message: 'Please enter the expiration date.' }]
+  plan: [{ required: true, trigger: 'blur', message: 'The plan is required.' }],
+  expire_at: [{ required: true, trigger: 'blur', message: 'The expiration date is required.' }]
 };
 
 function searchOrganizationList() {
   if (loadingOrgListProgress.value) return;
 
   loadingOrgListProgress.value = true;
-  getOrganizationList(
-    {
-      domain: filters.value.domain,
-      curPage: paginationData.currentPage,
-      pageSize: paginationData.pageSize
-    }
-  )
+  const payload = {
+    domain: filters.value.domain,
+    curPage: paginationData.currentPage,
+    pageSize: paginationData.pageSize
+  };
+  getOrganizationList(payload)
     .then((res) => {
       if (res.success && res.data && res.pagination) {
         organizationList.value = res.data.org_list;
@@ -121,13 +120,13 @@ function handleSave() {
 
     savingOrgProgress.value = true;
     const bl = organizationList.value.some((org: IOrganization) => org.domain === orgForm.value.domain);
-    const data = {
+    const payload = {
       domain: orgForm.value.domain,
       name: orgForm.value.name
     };
 
     if (bl) {
-      updateOrganization(data)
+      updateOrganization(payload)
         .then((res) => {
           if (res.success) {
             orgDialogVisible.value = false;
@@ -138,7 +137,7 @@ function handleSave() {
           savingOrgProgress.value = false;
         });
     } else {
-      createOrganization(data)
+      createOrganization(payload)
         .then((res) => {
           if (res.success) {
             orgDialogVisible.value = false;
@@ -168,14 +167,14 @@ function handleUpdatePlan() {
     }
 
     savingPlanProgress.value = true;
-    const data = {
+    const payload = {
       domain: planForm.value.domain,
       plan: planForm.value.plan,
       expire_at: `${planForm.value.expire_at} 00:00:00`,
       extra: planForm.value.extra
     };
 
-    updateOrganizationPlan(data)
+    updateOrganizationPlan(payload)
       .then((res) => {
         if (res.success) {
           planDialogVisible.value = false;

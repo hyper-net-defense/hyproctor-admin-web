@@ -141,8 +141,8 @@ const searchData = reactive({
 
 function searchUser() {
   loading.value = true;
-  // Compose request payload according to backend API
-  const payload: any = {
+
+  const payload = {
     name: searchData.name || '',
     email: searchData.email || '',
     plan: searchData.plan >= 0 ? searchData.plan : undefined,
@@ -150,7 +150,6 @@ function searchUser() {
     page_size: paginationData.pageSize
   };
 
-  // If plan is Select All (-1), send Membership.COUNT to backend to indicate all plans
   if (searchData.plan === -1) payload.plan = 3; // Membership.COUNT === 3
 
   getUserList(payload).then((res) => {
@@ -159,22 +158,13 @@ function searchUser() {
       return;
     }
 
-    // Backend returns data and pagination fields
-    const data = res.data;
-    if (data) {
-      // support pagination returned either on res.pagination or in the returned data
-      // Use any casts because the axios ApiResponseData typing is flexible
-      const anyRes: any = res;
-      if (anyRes.pagination && typeof anyRes.pagination.total === 'number') {
-        paginationData.total = anyRes.pagination.total;
-      } else if (data.total_count !== undefined) {
-        paginationData.total = data.total_count;
-      }
-
-      tableData.value = data.user_list || data;
+    if (res.data && res.pagination) {
+      paginationData.total = res.pagination.total;
+      tableData.value = res.data.user_list;
     }
   }).catch(() => {
     tableData.value = [];
+    paginationData.total = 0;
   }).finally(() => {
     loading.value = false;
   });
@@ -188,14 +178,9 @@ function resetSearch() {
   searchFormRef.value?.resetFields();
   handleSearch();
 }
-// #endregion
 
-// Watch pagination changes
 watch([() => paginationData.currentPage, () => paginationData.pageSize], searchUser, { immediate: true });
 
-/**
- * Download all user data as CSV (no filters, page_size=0)
- */
 async function downloadCsv() {
   downloadLoading.value = true;
   try {

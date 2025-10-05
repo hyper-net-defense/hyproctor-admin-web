@@ -1,3 +1,7 @@
+<template>
+  <div />
+</template>
+
 <style lang="scss" scoped>
 .handle-button {
   width: 48px;

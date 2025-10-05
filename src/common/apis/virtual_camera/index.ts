@@ -1,31 +1,32 @@
+import type * as API from '@/@types/api';
 import { request } from '@/http/axios';
 
-export function getVirtualCameraList(data: any) {
-  return request({
+export function getVirtualCameraList(data: API.TVirtualCameraListRequestData): Promise<API.TVirtualCameraListResponseData> {
+  return request<API.TVirtualCameraListResponseData>({
     url: '/virtual_camera/list',
     method: 'post',
     data
   });
 }
 
-export function addVirtualCamera(data: any) {
-  return request({
+export function addVirtualCamera(data: API.TVirtualCameraCommitRequestData): Promise<API.TVirtualCameraCommitResponseData> {
+  return request<API.TVirtualCameraCommitResponseData>({
     url: '/virtual_camera/add',
     method: 'post',
     data
   });
 }
 
-export function updateVirtualCamera(data: any) {
-  return request({
+export function updateVirtualCamera(data: API.TVirtualCameraCommitRequestData): Promise<API.TVirtualCameraCommitResponseData> {
+  return request<API.TVirtualCameraCommitResponseData>({
     url: '/virtual_camera/update',
     method: 'post',
     data
   });
 }
 
-export function deleteVirtualCamera(id: string) {
-  return request({
+export function deleteVirtualCamera(id: string): Promise<API.TVirtualCameraDeleteResponseData> {
+  return request<API.TVirtualCameraDeleteResponseData>({
     url: '/virtual_camera/delete',
     method: 'post',
     data: { id }

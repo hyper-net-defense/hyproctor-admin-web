@@ -129,6 +129,12 @@ fetchList();
   }
 }
 
+.toolbar-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
 .table-wrapper {
   margin-bottom: 20px;
 }

@@ -3,7 +3,7 @@ import { request } from '@/http/axios';
 
 export function getOrganizationList(data: API.TSearchOrganizationRequestData): Promise<API.TOrganizationListResponseData> {
   return request<API.TOrganizationListResponseData>({
-    url: '/admin/get_org_list',
+    url: '/admin/org/list',
     method: 'post',
     data
   });
@@ -11,7 +11,7 @@ export function getOrganizationList(data: API.TSearchOrganizationRequestData): P
 
 export function createOrganization(data: API.TCommitOrganizationRequestData) {
   return request<API.TCommitOrganizationResponseData>({
-    url: '/admin/create_org',
+    url: '/admin/org/add',
     method: 'post',
     data
   });
@@ -19,7 +19,7 @@ export function createOrganization(data: API.TCommitOrganizationRequestData) {
 
 export function updateOrganization(data: API.TCommitOrganizationRequestData) {
   return request<API.TCommitOrganizationResponseData>({
-    url: '/admin/update_org',
+    url: '/admin/org/update',
     method: 'post',
     data
   });
@@ -27,7 +27,7 @@ export function updateOrganization(data: API.TCommitOrganizationRequestData) {
 
 export function updateOrganizationPlan(data: API.TUpdateOrganizationPlanRequestData) {
   return request<API.TUpdateOrganizationPlanResponseData>({
-    url: '/admin/update_org_plan',
+    url: '/admin/org/update_plan',
     method: 'post',
     data
   });
