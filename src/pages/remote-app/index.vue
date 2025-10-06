@@ -58,10 +58,10 @@ function searchRemoteAppList() {
 
 function handleRemoteAppDialogOpen(row?: IRemoteApp) {
   if (row) {
-    remoteAppDialogTitle.value = 'Edit';
+    remoteAppDialogTitle.value = 'Edit Remote App';
     remoteAppFormData.value = { ...row };
   } else {
-    remoteAppDialogTitle.value = 'Add New';
+    remoteAppDialogTitle.value = 'Add Remote App';
     remoteAppFormData.value = { id: '', name: '', link: '', process_win: '', process_mac: '' };
   }
   remoteAppDialogVisible.value = true;
@@ -87,7 +87,7 @@ function handleSave() {
             remoteAppDialogVisible.value = false;
             searchRemoteAppList();
           } else {
-            ElMessage.error('Failed to update.');
+            ElMessage.error(res.message || 'Failed to update.');
           }
         })
         .finally(() => {
@@ -101,7 +101,7 @@ function handleSave() {
             remoteAppDialogVisible.value = false;
             searchRemoteAppList();
           } else {
-            ElMessage.error('Failed to add.');
+            ElMessage.error(res.message || 'Failed to add.');
           }
         })
         .finally(() => {
@@ -125,7 +125,7 @@ function handleDelete(row: IRemoteApp) {
             ElMessage.success('Succeed to delete.');
             searchRemoteAppList();
           } else {
-            ElMessage.error('');
+            ElMessage.error(res.message || 'Failed to delete.');
           }
         })
         .finally(() => {

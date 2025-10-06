@@ -33,12 +33,12 @@ const signedAppDialogVisible = ref<boolean>(false);
 const signedAppDialogTitle = ref<string>('');
 const signedAppFormData = ref<TSignedAppForm>({ id: '', build: '', os: '', obj_key: '', pv_key: '', plan: 0, domain: '', is_active: true });
 const signedAppFormRules = ref({
-  build: [{ required: true, message: 'The build is required', trigger: 'blur' }],
-  os: [{ required: true, message: 'The os is required', trigger: 'blur' }],
-  obj_key: [{ required: true, message: 'The object key is required', trigger: 'blur' }],
-  pv_key: [{ required: true, message: 'The pv key is required', trigger: 'blur' }],
-  plan: [{ required: true, message: 'The plan is required', trigger: 'blur' }],
-  is_active: [{ required: true, message: 'The active is required', trigger: 'blur' }]
+  build: [{ required: true, message: 'The build is required.', trigger: 'blur' }],
+  os: [{ required: true, message: 'The os is required.', trigger: 'blur' }],
+  obj_key: [{ required: true, message: 'The object key is required.', trigger: 'blur' }],
+  pv_key: [{ required: true, message: 'The pv key is required.', trigger: 'blur' }],
+  plan: [{ required: true, message: 'The plan is required.', trigger: 'blur' }],
+  is_active: [{ required: true, message: 'The active is required.', trigger: 'blur' }]
 });
 
 function searchSignedAppList() {
@@ -69,10 +69,10 @@ function searchSignedAppList() {
 
 function handleSignedAppDialogOpen(row?: ISignedApp) {
   if (row) {
-    signedAppDialogTitle.value = 'Edit';
+    signedAppDialogTitle.value = 'Edit Singed App';
     signedAppFormData.value = { ...row };
   } else {
-    signedAppDialogTitle.value = 'Add New';
+    signedAppDialogTitle.value = 'Add Singed App';
     signedAppFormData.value = { id: '', build: '', os: '', obj_key: '', pv_key: '', plan: 0, domain: '', is_active: true };
   }
   signedAppDialogVisible.value = true;
@@ -84,7 +84,7 @@ function handleSave() {
   savingProgress.value = true;
   signedAppFormRef.value?.validate(async (valid) => {
     if (!valid) {
-      ElMessage.error('Form validation failed.');
+      ElMessage.error('The form validation failed.');
       savingProgress.value = false;
       return;
     }
@@ -97,7 +97,7 @@ function handleSave() {
             signedAppDialogVisible.value = false;
             searchSignedAppList();
           } else {
-            ElMessage.error(res.message || 'Update failed.');
+            ElMessage.error(res.message || 'Failed to update.');
           }
         })
         .finally(() => {
@@ -111,7 +111,7 @@ function handleSave() {
             signedAppDialogVisible.value = false;
             searchSignedAppList();
           } else {
-            ElMessage.error(res.message || 'Save failed.');
+            ElMessage.error(res.message || 'Failed to add.');
           }
         })
         .finally(() => {
@@ -134,7 +134,7 @@ function handleDelete(row: ISignedApp) {
           if (res.success) {
             searchSignedAppList();
           } else {
-            ElMessage.error(res.message || 'Delete failed.');
+            ElMessage.error(res.message || 'Failed to delete.');
           }
         })
         .finally(() => {

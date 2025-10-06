@@ -56,10 +56,10 @@ function searchVirtualCameraList() {
 
 function handleVirtualCameraDialogOpen(row?: IVirtualCamera) {
   if (row) {
-    virtualCameraDialogTitle.value = 'Edit';
+    virtualCameraDialogTitle.value = 'Edit Virtual Camera';
     virtualCameraFormData.value = { ...row };
   } else {
-    virtualCameraDialogTitle.value = 'Add New';
+    virtualCameraDialogTitle.value = 'Add Virtual Camera';
     virtualCameraFormData.value = { id: '', name: '', pattern: '' };
   }
   virtualCameraDialogVisible.value = true;
@@ -85,7 +85,7 @@ function handleSave() {
             virtualCameraDialogVisible.value = false;
             searchVirtualCameraList();
           } else {
-            ElMessage.error('Failed to update.');
+            ElMessage.error(res.message || 'Failed to update.');
           }
         })
         .finally(() => {
@@ -99,7 +99,7 @@ function handleSave() {
             virtualCameraDialogVisible.value = false;
             searchVirtualCameraList();
           } else {
-            ElMessage.error('Failed to add.');
+            ElMessage.error(res.message || 'Failed to add.');
           }
         })
         .finally(() => {
@@ -123,7 +123,7 @@ function handleDelete(row: IVirtualCamera) {
             ElMessage.success('Succeed to delete.');
             searchVirtualCameraList();
           } else {
-            ElMessage.error('');
+            ElMessage.error(res.message || 'Failed to delete.');
           }
         })
         .finally(() => {

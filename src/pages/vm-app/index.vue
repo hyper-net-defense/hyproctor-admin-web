@@ -58,10 +58,10 @@ function searchVmAppList() {
 
 function handleVmAppDialogOpen(row?: IVmApp) {
   if (row) {
-    vmAppDialogTitle.value = 'Edit';
+    vmAppDialogTitle.value = 'Edit VM App';
     vmAppFormData.value = { ...row };
   } else {
-    vmAppDialogTitle.value = 'Add New';
+    vmAppDialogTitle.value = 'Add VM App';
     vmAppFormData.value = { id: '', name: '', link: '', process_win: '', process_mac: '' };
   }
   vmAppDialogVisible.value = true;
@@ -87,7 +87,7 @@ function handleSave() {
             vmAppDialogVisible.value = false;
             searchVmAppList();
           } else {
-            ElMessage.error('Failed to update.');
+            ElMessage.error(res.message || 'Failed to update.');
           }
         })
         .finally(() => {
@@ -101,7 +101,7 @@ function handleSave() {
             vmAppDialogVisible.value = false;
             searchVmAppList();
           } else {
-            ElMessage.error('Failed to add.');
+            ElMessage.error(res.message || 'Failed to add.');
           }
         })
         .finally(() => {
@@ -125,7 +125,7 @@ function handleDelete(row: IVmApp) {
             ElMessage.success('Succeed to delete.');
             searchVmAppList();
           } else {
-            ElMessage.error('');
+            ElMessage.error(res.message || 'Failed to delete.');
           }
         })
         .finally(() => {

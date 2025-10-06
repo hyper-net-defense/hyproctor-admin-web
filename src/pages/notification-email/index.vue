@@ -56,10 +56,10 @@ function searchNotificationEmailList() {
 
 function handleNotificationEmailDialogOpen(row?: INotificationEmail) {
   if (row) {
-    notificationEmailDialogTitle.value = 'Edit';
+    notificationEmailDialogTitle.value = 'Edit Notification Email';
     notificationEmailFormData.value = { ...row };
   } else {
-    notificationEmailDialogTitle.value = 'Add New';
+    notificationEmailDialogTitle.value = 'Add Notification Email';
     notificationEmailFormData.value = { id: '', name: '', email: '' };
   }
   notificationEmailDialogVisible.value = true;
@@ -85,7 +85,7 @@ function handleSave() {
             notificationEmailDialogVisible.value = false;
             searchNotificationEmailList();
           } else {
-            ElMessage.error('Failed to update.');
+            ElMessage.error(res.message || 'Failed to update.');
           }
         })
         .finally(() => {
@@ -99,7 +99,7 @@ function handleSave() {
             notificationEmailDialogVisible.value = false;
             searchNotificationEmailList();
           } else {
-            ElMessage.error('Failed to add.');
+            ElMessage.error(res.message || 'Failed to add.');
           }
         })
         .finally(() => {
@@ -123,7 +123,7 @@ function handleDelete(row: INotificationEmail) {
             ElMessage.success('Succeed to delete.');
             searchNotificationEmailList();
           } else {
-            ElMessage.error('');
+            ElMessage.error(res.message || 'Failed to delete.');
           }
         })
         .finally(() => {

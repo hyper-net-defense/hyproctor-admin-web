@@ -108,7 +108,7 @@ function handleSave() {
 
   orgFormRef.value?.validate((valid) => {
     if (!valid) {
-      ElMessage.error('Form validation failed.');
+      ElMessage.error('The form validation failed.');
       return;
     }
 
@@ -126,6 +126,8 @@ function handleSave() {
             ElMessage.success('Succeed to update.');
             orgDialogVisible.value = false;
             searchOrganizationList();
+          } else {
+            ElMessage.error(res.message || 'Failed to update.');
           }
         })
         .finally(() => {
@@ -139,7 +141,7 @@ function handleSave() {
             orgDialogVisible.value = false;
             searchOrganizationList();
           } else {
-            ElMessage.error(res?.message || 'Operation failed.');
+            ElMessage.error(res.message || 'Failed to add.');
           }
         })
         .finally(() => {
@@ -158,7 +160,7 @@ function handleUpdatePlan() {
 
   planFormRef.value?.validate((valid) => {
     if (!valid) {
-      ElMessage.error('Form validation failed.');
+      ElMessage.error('The form validation failed.');
       return;
     }
 
@@ -176,7 +178,7 @@ function handleUpdatePlan() {
           planDialogVisible.value = false;
           searchOrganizationList();
         } else {
-          ElMessage.error(res?.message || 'Operation failed.');
+          ElMessage.error(res.message || 'Failed to update.');
         }
       })
       .finally(() => {

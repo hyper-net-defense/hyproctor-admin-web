@@ -27,8 +27,8 @@ const blackDomainDialogVisible = ref<boolean>(false);
 const blackDomainDialogTitle = ref<string>('');
 const blackDomainFormData = ref<TBlackDomainForm>({ id: '', domain: '', is_cheat: true });
 const blackDomainFormRules = ref({
-  domain: [{ required: true, message: 'The domain is required', trigger: 'blur' }],
-  is_cheat: [{ required: true, message: 'The cheat is required', trigger: 'blur' }]
+  domain: [{ required: true, message: 'The domain is required.', trigger: 'blur' }],
+  is_cheat: [{ required: true, message: 'The cheat is required.', trigger: 'blur' }]
 });
 
 function searchBlackDomainList() {
@@ -58,10 +58,10 @@ function searchBlackDomainList() {
 
 function handleBlackDomainDialogOpen(row?: IBlackDomain) {
   if (row) {
-    blackDomainDialogTitle.value = 'Edit';
+    blackDomainDialogTitle.value = 'Edit Black Domain';
     blackDomainFormData.value = { ...row };
   } else {
-    blackDomainDialogTitle.value = 'Add New';
+    blackDomainDialogTitle.value = 'Add Black Domain';
     blackDomainFormData.value = { id: '', domain: '', is_cheat: true };
   }
   blackDomainDialogVisible.value = true;
@@ -87,7 +87,7 @@ function handleSave() {
             blackDomainDialogVisible.value = false;
             searchBlackDomainList();
           } else {
-            ElMessage.error(res.message || 'Update failed.');
+            ElMessage.error(res.message || 'Failed to update.');
           }
         })
         .finally(() => {
@@ -101,7 +101,7 @@ function handleSave() {
             blackDomainDialogVisible.value = false;
             searchBlackDomainList();
           } else {
-            ElMessage.error(res.message || 'Save failed.');
+            ElMessage.error(res.message || 'Failed to add.');
           }
         })
         .finally(() => {
@@ -124,7 +124,7 @@ function handleDelete(row: IBlackDomain) {
           if (res.success) {
             searchBlackDomainList();
           } else {
-            ElMessage.error(res.message || 'Delete failed.');
+            ElMessage.error(res.message || 'Failed to delete.');
           }
         })
         .finally(() => {

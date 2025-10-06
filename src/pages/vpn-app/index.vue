@@ -58,10 +58,10 @@ function searchVpnAppList() {
 
 function handleVpnAppDialogOpen(row?: IVpnApp) {
   if (row) {
-    vpnAppDialogTitle.value = 'Edit';
+    vpnAppDialogTitle.value = 'Edit VPN App';
     vpnAppFormData.value = { ...row };
   } else {
-    vpnAppDialogTitle.value = 'Add New';
+    vpnAppDialogTitle.value = 'Add VPN App';
     vpnAppFormData.value = { id: '', name: '', link: '', process_win: '', process_mac: '' };
   }
   vpnAppDialogVisible.value = true;
@@ -87,7 +87,7 @@ function handleSave() {
             vpnAppDialogVisible.value = false;
             searchVpnAppList();
           } else {
-            ElMessage.error('Failed to update.');
+            ElMessage.error(res.message || 'Failed to update.');
           }
         })
         .finally(() => {
@@ -101,7 +101,7 @@ function handleSave() {
             vpnAppDialogVisible.value = false;
             searchVpnAppList();
           } else {
-            ElMessage.error('Failed to add.');
+            ElMessage.error(res.message || 'Failed to add.');
           }
         })
         .finally(() => {
@@ -125,7 +125,7 @@ function handleDelete(row: IVpnApp) {
             ElMessage.success('Succeed to delete.');
             searchVpnAppList();
           } else {
-            ElMessage.error('');
+            ElMessage.error(res.message || 'Failed to delete.');
           }
         })
         .finally(() => {

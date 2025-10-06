@@ -40,9 +40,9 @@ const cheatToolFormData: TCheatToolForm = reactive<TCheatToolForm>({
   process_mac: ''
 });
 const cheatToolFormRules = reactive({
-  name: [{ required: true, message: 'The name is required', trigger: 'blur' }],
-  domain: [{ required: true, message: 'The domain is required', trigger: 'blur' }],
-  link: [{ required: true, message: 'The link is required', trigger: 'blur' }]
+  name: [{ required: true, message: 'The name is required.', trigger: 'blur' }],
+  domain: [{ required: true, message: 'The domain is required.', trigger: 'blur' }],
+  link: [{ required: true, message: 'The link is required.', trigger: 'blur' }]
 });
 const ipString = ref<string>('');
 

@@ -59,23 +59,25 @@ function handleUpdateStatus() {
       ElMessage.error('Form validation failed.');
       return;
     }
+
     confirmProgress.value = true;
     const data = {
       ms_id: userFormData.value.ms_id as string,
       status: Number.parseInt(userFormData.value.status, 10)
     };
+
     updateStatus(data)
       .then((res) => {
         if (res.success) {
-          ElMessage.success('Updated status successfully.');
+          ElMessage.success('Succeed to update.');
           userDialogVisible.value = false;
           searchUser();
         } else {
-          ElMessage.error(res?.message || 'Failed to update status');
+          ElMessage.error(res.message || 'Failed to update.');
         }
       })
       .catch(() => {
-        ElMessage.error('Failed to update status');
+        ElMessage.error('Failed to update.');
       })
       .finally(() => {
         confirmProgress.value = false;
@@ -90,9 +92,7 @@ function resetForm() {
     status: '0'
   };
 }
-// #endregion
 
-// #region Delete
 // function handleDelete(row: IUser) {
 //   ElMessageBox.confirm(`Deleting user: ${row.name}, confirm deletion?`, 'Warning', {
 //     confirmButtonText: 'Confirm',
@@ -105,9 +105,7 @@ function resetForm() {
 //     });
 //   });
 // }
-// #endregion
 
-// #region Update
 function handleUpdate(row: IUser) {
   userDialogVisible.value = true;
 
@@ -117,7 +115,6 @@ function handleUpdate(row: IUser) {
     status: `${row.status}`
   };
 }
-// #endregion
 
 const userList = ref<IUser[]>([]);
 const searchFormRef = useTemplateRef('searchFormRef');
@@ -217,12 +214,6 @@ async function handleDownloadCsv() {
 
 <template>
   <div class="app-container">
-    <!-- <el-alert
-      title="Data Source"
-      type="success"
-      description="Online Mock data provided by Apifox, data is not real, only for basic CRUD demonstration"
-      show-icon
-    /> -->
     <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchFormData">
         <el-form-item prop="email" label="Email">
