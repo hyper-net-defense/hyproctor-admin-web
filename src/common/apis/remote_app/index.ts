@@ -3,7 +3,7 @@ import { request } from '@/http/axios';
 
 export function getRemoteAppList(data: API.TRemoteAppListRequestData): Promise<API.TRemoteAppListResponseData> {
   return request<API.TRemoteAppListResponseData>({
-    url: '/remote_app/list',
+    url: '/admin/remote_app/list',
     method: 'post',
     data
   });
@@ -11,7 +11,7 @@ export function getRemoteAppList(data: API.TRemoteAppListRequestData): Promise<A
 
 export function addRemoteApp(data: API.TRemoteAppCommitRequestData): Promise<API.TRemoteAppCommitResponseData> {
   return request<API.TRemoteAppCommitResponseData>({
-    url: '/remote_app/add',
+    url: '/admin/remote_app/add',
     method: 'post',
     data
   });
@@ -19,7 +19,7 @@ export function addRemoteApp(data: API.TRemoteAppCommitRequestData): Promise<API
 
 export function updateRemoteApp(data: API.TRemoteAppCommitRequestData): Promise<API.TRemoteAppCommitResponseData> {
   return request<API.TRemoteAppCommitResponseData>({
-    url: '/remote_app/update',
+    url: '/admin/remote_app/update',
     method: 'post',
     data
   });
@@ -27,7 +27,7 @@ export function updateRemoteApp(data: API.TRemoteAppCommitRequestData): Promise<
 
 export function deleteRemoteApp(id: string): Promise<API.TRemoteAppDeleteResponseData> {
   return request<API.TRemoteAppDeleteResponseData>({
-    url: '/remote_app/delete',
+    url: '/admin/remote_app/delete',
     method: 'post',
     data: { id }
   });

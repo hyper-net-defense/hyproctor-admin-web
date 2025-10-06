@@ -1,4 +1,5 @@
 import type {
+  IBlackDomain,
   ICheatTool,
   INotificationEmail,
   IOrganization,
@@ -87,7 +88,7 @@ export interface TVpnAppListRequestData {
 export type TVpnAppListResponseData = ApiResponseData<{
   vpn_app_list: IVpnApp[];
 }>;
-export type TVpnAppCommitRequestData = ICheatTool;
+export type TVpnAppCommitRequestData = IVpnApp;
 export type TVpnAppCommitResponseData = ApiResponseData<{ id: string }>;
 export interface TVpnAppDeleteRequestData {
   id: string;
@@ -102,7 +103,7 @@ export interface TRemoteAppListRequestData {
 export type TRemoteAppListResponseData = ApiResponseData<{
   remote_app_list: IRemoteApp[];
 }>;
-export type TRemoteAppCommitRequestData = ICheatTool;
+export type TRemoteAppCommitRequestData = IRemoteApp;
 export type TRemoteAppCommitResponseData = ApiResponseData<{ id: string }>;
 export type TRemoteAppDeleteResponseData = ApiResponseData<{ id: string }>;
 
@@ -114,7 +115,7 @@ export interface TVirtualCameraListRequestData {
 export type TVirtualCameraListResponseData = ApiResponseData<{
   virtual_camera_list: IVirtualCamera[];
 }>;
-export type TVirtualCameraCommitRequestData = ICheatTool;
+export type TVirtualCameraCommitRequestData = IVirtualCamera;
 export type TVirtualCameraCommitResponseData = ApiResponseData<{ id: string }>;
 export type TVirtualCameraDeleteResponseData = ApiResponseData<{ id: string }>;
 
@@ -126,12 +127,11 @@ export interface TVmAppListRequestData {
 export type TVmAppListResponseData = ApiResponseData<{
   vm_app_list: IVmApp[];
 }>;
-export type TVmAppCommitRequestData = ICheatTool;
+export type TVmAppCommitRequestData = IVmApp;
 export type TVmAppCommitResponseData = ApiResponseData<{ id: string }>;
 export type TVmAppDeleteResponseData = ApiResponseData<{ id: string }>;
 
 export interface TNotificationEmailListRequestData {
-  name: string;
   email: string;
   curPage?: number;
   pageSize?: number;
@@ -139,6 +139,18 @@ export interface TNotificationEmailListRequestData {
 export type TNotificationEmailListResponseData = ApiResponseData<{
   notification_email_list: INotificationEmail[];
 }>;
-export type TNotificationEmailCommitRequestData = ICheatTool;
+export type TNotificationEmailCommitRequestData = INotificationEmail;
 export type TNotificationEmailCommitResponseData = ApiResponseData<{ id: string }>;
 export type TNotificationEmailDeleteResponseData = ApiResponseData<{ id: string }>;
+
+export interface TBlackDomainListRequestData {
+  domain: string;
+  curPage?: number;
+  pageSize?: number;
+}
+export type TBlackDomainListResponseData = ApiResponseData<{
+  block_domain_list: IBlackDomain[];
+}>;
+export type TBlackDomainCommitRequestData = IBlackDomain;
+export type TBlackDomainCommitResponseData = ApiResponseData<{ id: string }>;
+export type TBlackDomainDeleteResponseData = ApiResponseData<{ id: string }>;

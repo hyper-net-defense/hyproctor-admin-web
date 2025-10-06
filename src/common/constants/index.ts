@@ -24,3 +24,10 @@ export const Membership = {
   ENTERPRISE: 2,
   COUNT: 3
 };
+
+export const MembershipList = [
+  { id: Membership.FREE, text: 'Free' },
+  { id: Membership.PRO, text: 'Pro' },
+  { id: Membership.ENTERPRISE, text: 'Enterprise' },
+  { id: Membership.COUNT, text: 'Count' }
+];

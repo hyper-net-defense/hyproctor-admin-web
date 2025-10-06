@@ -3,7 +3,7 @@ import { request } from '@/http/axios';
 
 export function getVmAppList(data: API.TVmAppListRequestData): Promise<API.TVmAppListResponseData> {
   return request<API.TVmAppListResponseData>({
-    url: '/vm_app/list',
+    url: '/admin/vm_app/list',
     method: 'post',
     data
   });
@@ -11,7 +11,7 @@ export function getVmAppList(data: API.TVmAppListRequestData): Promise<API.TVmAp
 
 export function addVmApp(data: API.TVmAppCommitRequestData): Promise<API.TVmAppCommitResponseData> {
   return request<API.TVmAppCommitResponseData>({
-    url: '/vm_app/add',
+    url: '/admin/vm_app/add',
     method: 'post',
     data
   });
@@ -19,7 +19,7 @@ export function addVmApp(data: API.TVmAppCommitRequestData): Promise<API.TVmAppC
 
 export function updateVmApp(data: API.TVmAppCommitRequestData): Promise<API.TVmAppCommitResponseData> {
   return request<API.TVmAppCommitResponseData>({
-    url: '/vm_app/update',
+    url: '/admin/vm_app/update',
     method: 'post',
     data
   });
@@ -27,7 +27,7 @@ export function updateVmApp(data: API.TVmAppCommitRequestData): Promise<API.TVmA
 
 export function deleteVmApp(id: string): Promise<API.TVmAppDeleteResponseData> {
   return request<API.TVmAppDeleteResponseData>({
-    url: '/vm_app/delete',
+    url: '/admin/vm_app/delete',
     method: 'post',
     data: { id }
   });

@@ -27,7 +27,7 @@ export interface IOrganization {
 }
 
 export interface ISignedApp {
-  id: string;
+  id?: string;
   build: string;
   os: string;
   obj_key: string;
@@ -81,4 +81,10 @@ export interface INotificationEmail {
   id?: string;
   name: string;
   email: string;
+}
+
+export interface IBlackDomain {
+  id?: string;
+  domain: string;
+  is_cheat: boolean;
 }

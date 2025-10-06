@@ -3,7 +3,7 @@ import { request } from '@/http/axios';
 
 export function getVirtualCameraList(data: API.TVirtualCameraListRequestData): Promise<API.TVirtualCameraListResponseData> {
   return request<API.TVirtualCameraListResponseData>({
-    url: '/virtual_camera/list',
+    url: '/admin/virtual_camera/list',
     method: 'post',
     data
   });
@@ -11,7 +11,7 @@ export function getVirtualCameraList(data: API.TVirtualCameraListRequestData): P
 
 export function addVirtualCamera(data: API.TVirtualCameraCommitRequestData): Promise<API.TVirtualCameraCommitResponseData> {
   return request<API.TVirtualCameraCommitResponseData>({
-    url: '/virtual_camera/add',
+    url: '/admin/virtual_camera/add',
     method: 'post',
     data
   });
@@ -19,7 +19,7 @@ export function addVirtualCamera(data: API.TVirtualCameraCommitRequestData): Pro
 
 export function updateVirtualCamera(data: API.TVirtualCameraCommitRequestData): Promise<API.TVirtualCameraCommitResponseData> {
   return request<API.TVirtualCameraCommitResponseData>({
-    url: '/virtual_camera/update',
+    url: '/admin/virtual_camera/update',
     method: 'post',
     data
   });
@@ -27,7 +27,7 @@ export function updateVirtualCamera(data: API.TVirtualCameraCommitRequestData): 
 
 export function deleteVirtualCamera(id: string): Promise<API.TVirtualCameraDeleteResponseData> {
   return request<API.TVirtualCameraDeleteResponseData>({
-    url: '/virtual_camera/delete',
+    url: '/admin/virtual_camera/delete',
     method: 'post',
     data: { id }
   });

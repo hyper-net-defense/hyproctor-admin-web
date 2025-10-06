@@ -5,6 +5,13 @@ import { usePagination } from '@@/composables/usePagination';
 import { Download, Refresh, RefreshRight, Search } from '@element-plus/icons-vue';
 import { cloneDeep } from 'lodash-es';
 import { getUserList, updateStatus } from '@/common/apis/users';
+import { Membership, MembershipList } from '@/common/constants';
+
+defineOptions({
+  name: 'ElementPlus'
+});
+
+const { paginationData, handleCurrentChange, handleSizeChange } = usePagination();
 
 interface UserFormData {
   ms_id?: string;
@@ -12,28 +19,22 @@ interface UserFormData {
   status: string;
 }
 
-defineOptions({
-  // Name the current component
-  name: 'ElementPlus'
-});
-
-const loading = ref<boolean>(false);
+const loadingProgress = ref<boolean>(false);
 const confirmProgress = ref<boolean>(false);
-const downloadLoading = ref<boolean>(false);
+const downloadingProgress = ref<boolean>(false);
 
-const { paginationData, handleCurrentChange, handleSizeChange } = usePagination();
+const userDialogVisible = ref<boolean>(false);
 
-// #region Create
-const DEFAULT_FORM_DATA: UserFormData = {
+const userFormRef = useTemplateRef('userFormRef');
+const userFormData = ref<UserFormData>(cloneDeep({
   email: '',
   status: '0'
+}));
+const userFormRules: FormRules<UserFormData> = {
+  email: [{ required: true, trigger: 'blur', message: 'The email is required.' }],
+  status: [{ required: true, trigger: 'blur', message: 'The status is required.' }]
 };
 
-const dialogVisible = ref<boolean>(false);
-
-const formRef = useTemplateRef('formRef');
-
-const formData = ref<UserFormData>(cloneDeep(DEFAULT_FORM_DATA));
 const statusOptions = [
   {
     label: 'Active',
@@ -49,38 +50,25 @@ const statusOptions = [
   }
 ];
 
-// Plan options
-const planOptions = [
-  { label: 'Select All', value: -1 },
-  { label: 'Free', value: 0 },
-  { label: 'Pro', value: 1 },
-  { label: 'Enterprise', value: 2 }
-];
-
-const formRules: FormRules<UserFormData> = {
-  email: [{ required: true, trigger: 'blur', message: 'Please enter user email.' }],
-  status: [{ required: true, trigger: 'blur', message: 'Please select user status.' }]
-};
-
 function handleUpdateStatus() {
-  if (!formData.value.ms_id) return;
+  if (!userFormData.value.ms_id) return;
   if (confirmProgress.value) return;
 
-  formRef.value?.validate((valid) => {
+  userFormRef.value?.validate((valid: boolean) => {
     if (!valid) {
       ElMessage.error('Form validation failed.');
       return;
     }
     confirmProgress.value = true;
     const data = {
-      ms_id: formData.value.ms_id as string,
-      status: Number.parseInt(formData.value.status, 10)
+      ms_id: userFormData.value.ms_id as string,
+      status: Number.parseInt(userFormData.value.status, 10)
     };
     updateStatus(data)
       .then((res) => {
         if (res.success) {
           ElMessage.success('Updated status successfully.');
-          dialogVisible.value = false;
+          userDialogVisible.value = false;
           searchUser();
         } else {
           ElMessage.error(res?.message || 'Failed to update status');
@@ -96,8 +84,11 @@ function handleUpdateStatus() {
 }
 
 function resetForm() {
-  formRef.value?.clearValidate();
-  formData.value = cloneDeep(DEFAULT_FORM_DATA);
+  userFormRef.value?.clearValidate();
+  userFormData.value = {
+    email: '',
+    status: '0'
+  };
 }
 // #endregion
 
@@ -118,9 +109,9 @@ function resetForm() {
 
 // #region Update
 function handleUpdate(row: IUser) {
-  dialogVisible.value = true;
+  userDialogVisible.value = true;
 
-  formData.value = {
+  userFormData.value = {
     ms_id: row.ms_id,
     email: row.email,
     status: `${row.status}`
@@ -128,29 +119,28 @@ function handleUpdate(row: IUser) {
 }
 // #endregion
 
-// #region Read
-const tableData = ref<IUser[]>([]);
-
+const userList = ref<IUser[]>([]);
 const searchFormRef = useTemplateRef('searchFormRef');
-
-const searchData = reactive({
+const searchFormData = reactive({
   email: '',
   name: '',
-  plan: -1
+  plan: Membership.FREE
 });
 
 function searchUser() {
-  loading.value = true;
+  if (loadingProgress.value) return;
+
+  loadingProgress.value = true;
 
   const payload = {
-    name: searchData.name || '',
-    email: searchData.email || '',
-    plan: searchData.plan >= 0 ? searchData.plan : undefined,
+    name: searchFormData.name || '',
+    email: searchFormData.email || '',
+    plan: searchFormData.plan >= Membership.FREE ? searchFormData.plan : undefined,
     page: paginationData.currentPage - 1,
     page_size: paginationData.pageSize
   };
 
-  if (searchData.plan === -1) payload.plan = 3; // Membership.COUNT === 3
+  if (searchFormData.plan === -1) payload.plan = 3; // Membership.COUNT === 3
 
   getUserList(payload).then((res) => {
     if (!res.success) {
@@ -160,13 +150,13 @@ function searchUser() {
 
     if (res.data && res.pagination) {
       paginationData.total = res.pagination.total;
-      tableData.value = res.data.user_list;
+      userList.value = res.data.user_list;
     }
   }).catch(() => {
-    tableData.value = [];
+    userList.value = [];
     paginationData.total = 0;
   }).finally(() => {
-    loading.value = false;
+    loadingProgress.value = false;
   });
 }
 
@@ -174,15 +164,17 @@ function handleSearch() {
   paginationData.currentPage === 1 ? searchUser() : (paginationData.currentPage = 1);
 }
 
-function resetSearch() {
+function handleResetSearch() {
   searchFormRef.value?.resetFields();
   handleSearch();
 }
 
 watch([() => paginationData.currentPage, () => paginationData.pageSize], searchUser, { immediate: true });
 
-async function downloadCsv() {
-  downloadLoading.value = true;
+async function handleDownloadCsv() {
+  if (downloadingProgress.value) return;
+
+  downloadingProgress.value = true;
   try {
     const payload = {
       name: '',
@@ -218,7 +210,7 @@ async function downloadCsv() {
     console.log(e);
     ElMessage.error('Failed to download CSV');
   } finally {
-    downloadLoading.value = false;
+    downloadingProgress.value = false;
   }
 }
 </script>
@@ -232,29 +224,29 @@ async function downloadCsv() {
       show-icon
     /> -->
     <el-card shadow="never" class="search-wrapper">
-      <el-form ref="searchFormRef" :inline="true" :model="searchData">
+      <el-form ref="searchFormRef" :inline="true" :model="searchFormData">
         <el-form-item prop="email" label="Email">
-          <el-input v-model="searchData.email" placeholder="Please enter" />
+          <el-input v-model="searchFormData.email" placeholder="Search email" />
         </el-form-item>
         <el-form-item prop="name" label="Name">
-          <el-input v-model="searchData.name" placeholder="Please enter" />
+          <el-input v-model="searchFormData.name" placeholder="Search name" />
         </el-form-item>
         <el-form-item prop="plan" label="Plan">
-          <el-select v-model="searchData.plan" placeholder="Select Plan" style="width: 160px;">
-            <el-option v-for="p in planOptions" :key="p.value" :label="p.label" :value="p.value" />
+          <el-select v-model="searchFormData.plan" placeholder="Select Plan" style="width: 160px;">
+            <el-option v-for="p in MembershipList" :key="p.id" :label="p.text" :value="p.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">
             Search
           </el-button>
-          <el-button :icon="Refresh" @click="resetSearch">
+          <el-button :icon="Refresh" @click="handleResetSearch">
             Reset
           </el-button>
         </el-form-item>
       </el-form>
     </el-card>
-    <el-card v-loading="loading" shadow="never">
+    <el-card v-loading="loadingProgress" shadow="never">
       <div class="toolbar-wrapper">
         <div>
           <!-- <el-button type="primary" :icon="CirclePlus" @click="dialogVisible = true">
@@ -266,7 +258,7 @@ async function downloadCsv() {
         </div>
         <div>
           <el-tooltip content="Download CSV">
-            <el-button :loading="downloadLoading" type="primary" :icon="Download" circle @click="downloadCsv" />
+            <el-button :loading="downloadingProgress" type="primary" :icon="Download" circle @click="handleDownloadCsv" />
           </el-tooltip>
           <el-tooltip content="Refresh current page">
             <el-button type="primary" :icon="RefreshRight" circle @click="searchUser" />
@@ -274,7 +266,7 @@ async function downloadCsv() {
         </div>
       </div>
       <div class="table-wrapper">
-        <el-table :data="tableData" style="width: 100%">
+        <el-table :data="userList" style="width: 100%">
           <el-table-column type="selection" width="50" align="center" />
           <el-table-column prop="name" label="Name" align="left">
             <template #default="{ row }">
@@ -321,20 +313,20 @@ async function downloadCsv() {
     </el-card>
     <!-- Add/Edit Dialog -->
     <el-dialog
-      v-model="dialogVisible"
-      :title="!formData.ms_id ? 'Add User' : 'Edit User'"
+      v-model="userDialogVisible"
+      :title="!userFormData.ms_id ? 'Add User' : 'Edit User'"
       width="30%"
       @closed="resetForm"
     >
-      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px" label-position="left">
+      <el-form ref="userFormRef" :model="userFormData" :rules="userFormRules" label-width="100px" label-position="left">
         <el-form-item prop="email" label="Email">
-          <el-input v-model="formData.email" disabled placeholder="Please enter" />
+          <el-input v-model="userFormData.email" disabled placeholder="Please enter" />
         </el-form-item>
-        <!-- <el-form-item v-if="!formData.ms_id" prop="password" label="Password">
-          <el-input v-model="formData.password" placeholder="Please enter" />
+        <!-- <el-form-item v-if="!userFormData.ms_id" prop="password" label="Password">
+          <el-input v-model="userFormData.password" placeholder="Please enter" />
         </el-form-item> -->
         <el-form-item prop="status" label="Status">
-          <el-select v-model="formData.status" placeholder="Please select">
+          <el-select v-model="userFormData.status" placeholder="Please select">
             <el-option
               v-for="item in statusOptions"
               :key="item.value"
@@ -345,7 +337,7 @@ async function downloadCsv() {
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">
+        <el-button @click="userDialogVisible = false">
           Cancel
         </el-button>
         <el-button type="primary" :loading="confirmProgress" @click="handleUpdateStatus">

@@ -1,187 +1,223 @@
 <script lang="ts" setup>
+import type { ICheatTool } from '@/@types';
 import { usePagination } from '@@/composables/usePagination';
-import { RefreshRight, Search } from '@element-plus/icons-vue';
+import { Plus, Refresh, RefreshRight, Search } from '@element-plus/icons-vue';
 import { reactive, ref, watch } from 'vue';
 import { addCheatTool, deleteCheatTool, getCheatToolList, updateCheatTool } from '@/common/apis/cheat_tool';
 
-const loading = ref(false);
-const confirmLoading = ref(false);
-const dialogVisible = ref(false);
-const dialogTitle = ref('');
+interface TCheatToolForm {
+  id?: string;
+  name: string;
+  domain: string;
+  link: string;
+  ip_list: string[];
+  process_win: string;
+  process_mac: string;
+}
+
+const loadingProgress = ref<boolean>(false);
+const savingProgress = ref<boolean>(false);
+const deletingProgress = ref<boolean>(false);
+
+const cheatToolDialogVisible = ref<boolean>(false);
+const cheatToolDialogTitle = ref<string>('');
 
 const { paginationData: pagination, handleCurrentChange, handleSizeChange } = usePagination();
 
-const list = ref<any[]>([]);
+const cheatToolList = ref<ICheatTool[]>([]);
 
 const searchFormRef = useTemplateRef('searchFormRef');
-const searchData = reactive({ name: '' });
+const searchFormData = reactive({ name: '' });
 
-const formRef = useTemplateRef('formRef');
-const formData: any = reactive({ id: '', name: '', domain: '', link: '', ip_list: [] as string[], process_win: '', process_mac: '' });
-const ipString = ref('');
+const cheatToolFormRef = useTemplateRef('cheatToolFormRef');
+const cheatToolFormData: TCheatToolForm = reactive<TCheatToolForm>({
+  id: '',
+  name: '',
+  domain: '',
+  link: '',
+  ip_list: [] as string[],
+  process_win: '',
+  process_mac: ''
+});
+const cheatToolFormRules = reactive({
+  name: [{ required: true, message: 'The name is required', trigger: 'blur' }],
+  domain: [{ required: true, message: 'The domain is required', trigger: 'blur' }],
+  link: [{ required: true, message: 'The link is required', trigger: 'blur' }]
+});
+const ipString = ref<string>('');
 
-function openDialog(row?: any) {
+function handleCheatToolDialogOpen(row?: any) {
   if (row) {
-    dialogTitle.value = 'Edit Cheat Tool';
-    formData.id = row.id || row._id || '';
-    formData.name = row.name;
-    formData.domain = row.domain;
-    formData.link = row.link;
-    formData.ip_list = row.ip_list || [];
-    ipString.value = (formData.ip_list || []).join(',');
-    formData.process_win = row.process_win || '';
-    formData.process_mac = row.process_mac || '';
+    cheatToolDialogTitle.value = 'Edit Cheat Tool';
+    cheatToolFormData.id = row.id;
+    cheatToolFormData.name = row.name;
+    cheatToolFormData.domain = row.domain;
+    cheatToolFormData.link = row.link;
+    cheatToolFormData.ip_list = row.ip_list || [];
+    ipString.value = (cheatToolFormData.ip_list || []).join(',');
+    cheatToolFormData.process_win = row.process_win || '';
+    cheatToolFormData.process_mac = row.process_mac || '';
   } else {
-    dialogTitle.value = 'Add Cheat Tool';
-    formData.id = '';
-    formData.name = '';
-    formData.domain = '';
-    formData.link = '';
-    formData.ip_list = [];
+    cheatToolDialogTitle.value = 'Add Cheat Tool';
+    cheatToolFormData.id = '';
+    cheatToolFormData.name = '';
+    cheatToolFormData.domain = '';
+    cheatToolFormData.link = '';
+    cheatToolFormData.ip_list = [];
     ipString.value = '';
-    formData.process_win = '';
-    formData.process_mac = '';
+    cheatToolFormData.process_win = '';
+    cheatToolFormData.process_mac = '';
   }
-  dialogVisible.value = true;
+  cheatToolDialogVisible.value = true;
 }
 
-function confirmDelete(row: any) {
-  ElMessageBox.confirm(`Delete ${row.name}?`, 'Confirm', { type: 'warning' }).then(async () => {
-    const id = row.id || row._id || '';
-    const res: any = await deleteCheatTool(id);
-    if (res && res.success) {
-      ElMessage.success('Deleted');
-      searchList();
-    } else {
-      ElMessage.error(res?.message || 'Delete failed');
-    }
-  }).catch(() => {});
+function handleDelete(row: ICheatTool) {
+  ElMessageBox.confirm(`Are you sure to delete this tool "${row.name}"`, 'Confirm', { type: 'warning' })
+    .then(() => {
+      if (!row.id) return;
+      if (deletingProgress.value) return;
+
+      deletingProgress.value = true;
+
+      deleteCheatTool(row.id)
+        .then((res) => {
+          if (res.success) {
+            ElMessage.success('Succeed to delete.');
+            searchCheatTool();
+          } else {
+            ElMessage.error(res.message || 'Failed to delete.');
+          }
+        })
+        .finally(() => {
+          deletingProgress.value = false;
+        });
+    })
+    .catch(() => {
+      deletingProgress.value = false;
+    });
 }
 
-async function handleSave() {
-  if (confirmLoading.value) return;
-  confirmLoading.value = true;
-  try {
-    if (!formData.id) {
-      // Add new: send full payload including ip_list
-      const ip_list = ipString.value ? ipString.value.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
-      const payloadAdd: any = {
-        name: formData.name,
-        domain: formData.domain,
-        link: formData.link,
-        ip_list,
-        process_win: formData.process_win,
-        process_mac: formData.process_mac
-      };
-      const res: any = await addCheatTool(payloadAdd);
-      if (res && res.success) {
-        ElMessage.success('Added');
-        dialogVisible.value = false;
-        searchList();
-      } else {
-        ElMessage.error(res?.message || 'Add failed');
-      }
+function handleSave() {
+  if (savingProgress.value) return;
+
+  savingProgress.value = true;
+  cheatToolFormRef.value?.validate((valid) => {
+    if (!valid) {
+      ElMessage.error('The form validation failed.');
+      savingProgress.value = false;
       return;
     }
 
-    // Update existing: backend now accepts full record updates
-    const ip_list = ipString.value ? ipString.value.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
-    const payloadUpdate: any = {
-      id: formData.id,
-      name: formData.name,
-      domain: formData.domain,
-      link: formData.link,
+    const ip_list = ipString.value ? ipString.value.split(',').map((s: string) => s.trim()) : [];
+    const payload = {
+      id: cheatToolFormData.id,
+      name: cheatToolFormData.name,
+      domain: cheatToolFormData.domain,
+      link: cheatToolFormData.link,
       ip_list,
-      process_win: formData.process_win,
-      process_mac: formData.process_mac
+      process_win: cheatToolFormData.process_win,
+      process_mac: cheatToolFormData.process_mac
     };
-    const res: any = await updateCheatTool(payloadUpdate);
-    if (res && res.success) {
-      ElMessage.success('Saved');
-      dialogVisible.value = false;
-      searchList();
+
+    if (!cheatToolFormData.id) {
+      addCheatTool(payload)
+        .then((res) => {
+          if (res.success) {
+            ElMessage.success('Succeed to add.');
+            cheatToolDialogVisible.value = false;
+            searchCheatTool();
+          } else {
+            ElMessage.error(res.message || 'Failed to add.');
+          }
+        })
+        .finally(() => {
+          savingProgress.value = false;
+        });
     } else {
-      ElMessage.error(res?.message || 'Save failed');
+      updateCheatTool(payload)
+        .then((res) => {
+          if (res.success) {
+            ElMessage.success('Succeed to update.');
+            cheatToolDialogVisible.value = false;
+            searchCheatTool();
+          } else {
+            ElMessage.error(res.message || 'Failed to update.');
+          }
+        })
+        .finally(() => {
+          savingProgress.value = false;
+        });
     }
-  } catch (e) {
-    console.log(e);
-    ElMessage.error('Save failed');
-  } finally {
-    confirmLoading.value = false;
-  }
+  });
 }
 
-function resetSearch() {
-  searchData.name = '';
-  searchList();
+function handleResetSearch() {
+  searchFormRef.value?.resetFields();
+  searchCheatTool();
 }
 
-function handleSearch() {
-  pagination.currentPage === 1 ? searchList() : (pagination.currentPage = 1);
-}
+function searchCheatTool() {
+  if (loadingProgress.value) return;
 
-async function searchList() {
-  loading.value = true;
-  try {
-    const payload = { name: searchData.name || '', page: pagination.currentPage - 1, page_size: pagination.pageSize };
-    const res: any = await getCheatToolList(payload);
-    if (res && res.success) {
-      const data = res.data ?? res;
-      // backend returns the list as the data payload (inf) — prefer array directly
-      list.value = Array.isArray(data) ? data : (data.cheat_tool_list || data || []);
-      const anyRes: any = res;
-      if (anyRes.pagination && typeof anyRes.pagination.total === 'number') {
-        pagination.total = anyRes.pagination.total;
-      } else if (data.total_count !== undefined) {
-        pagination.total = data.total_count;
+  loadingProgress.value = true;
+
+  const payload = {
+    name: searchFormData.name,
+    curPage: pagination.currentPage - 1,
+    pagSize: pagination.pageSize
+  };
+
+  getCheatToolList(payload)
+    .then((res) => {
+      if (res.success && res.data && res.pagination) {
+        cheatToolList.value = res.data.cheat_tool_list;
+        pagination.total = res.pagination.total;
+      } else {
+        cheatToolList.value = [];
+        pagination.total = 0;
       }
-    } else {
-      list.value = [];
-      ElMessage.error(res?.message || 'Failed to load');
-    }
-  } catch (e) {
-    console.log(e);
-    list.value = [];
-  } finally {
-    loading.value = false;
-  }
+    })
+    .finally(() => {
+      loadingProgress.value = false;
+    });
 }
 
-watch([() => pagination.currentPage, () => pagination.pageSize], searchList, { immediate: true });
+watch([() => pagination.currentPage, () => pagination.pageSize], searchCheatTool, { immediate: true });
 </script>
 
 <template>
   <div class="app-container">
     <el-card shadow="never" class="search-wrapper">
-      <el-form :inline="true" :model="searchData" ref="searchFormRef">
-        <el-form-item label="Name">
-          <el-input v-model="searchData.name" placeholder="Search by name" />
+      <el-form :inline="true" :model="searchFormData" ref="searchFormRef">
+        <el-form-item label="Name" prop="name">
+          <el-input v-model="searchFormData.name" placeholder="Search name" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
+          <el-button type="primary" :icon="Search" @click="searchCheatTool">
             Search
           </el-button>
-          <el-button @click="resetSearch">
+          <el-button :icon="Refresh" @click="handleResetSearch">
             Reset
           </el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
-    <el-card v-loading="loading" shadow="never">
+    <el-card v-loading="loadingProgress || deletingProgress" shadow="never">
       <div class="toolbar-wrapper">
+        <div />
         <div>
-          <el-button type="primary" @click="openDialog()">
-            Add New
-          </el-button>
-        </div>
-        <div>
-          <el-button type="primary" :icon="RefreshRight" circle @click="searchList" />
+          <el-tooltip content="Add new">
+            <el-button type="primary" :icon="Plus" circle @click="handleCheatToolDialogOpen()" />
+          </el-tooltip>
+          <el-tooltip content="Refresh current page">
+            <el-button type="primary" :icon="RefreshRight" circle @click="searchCheatTool" />
+          </el-tooltip>
         </div>
       </div>
 
       <div class="table-wrapper">
-        <el-table :data="list" style="width:100%">
+        <el-table :data="cheatToolList" class="w-full">
           <el-table-column prop="name" label="Name" />
           <el-table-column prop="domain" label="Domain" />
           <el-table-column prop="link" label="Link">
@@ -200,14 +236,23 @@ watch([() => pagination.currentPage, () => pagination.pageSize], searchList, { i
           </el-table-column>
           <el-table-column prop="process_win" label="Win-Process" />
           <el-table-column prop="process_mac" label="Mac-Process" />
-          <el-table-column fixed="right" label="Action" width="140">
+          <el-table-column fixed="right" label="Action" width="150">
             <template #default="{ row }">
-              <el-tooltip content="Edit">
-                <el-button type="text" icon="el-icon-edit" @click="openDialog(row)" />
-              </el-tooltip>
-              <el-tooltip content="Delete">
-                <el-button type="text" icon="el-icon-delete" @click="confirmDelete(row)" />
-              </el-tooltip>
+              <el-button
+                plain
+                type="primary"
+                size="small"
+                @click="handleCheatToolDialogOpen(row)"
+              >
+                Edit
+              </el-button>
+              <el-button
+                type="danger"
+                size="small"
+                @click="handleDelete(row)"
+              >
+                Delete
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -227,32 +272,38 @@ watch([() => pagination.currentPage, () => pagination.pageSize], searchList, { i
       </div>
     </el-card>
 
-    <el-dialog v-model="dialogVisible" :title="dialogTitle">
-      <el-form :model="formData" ref="formRef" label-width="120px">
-        <el-form-item label="Name">
-          <el-input v-model="formData.name" />
+    <el-dialog v-model="cheatToolDialogVisible" :title="cheatToolDialogTitle" width="500px">
+      <el-form
+        :model="cheatToolFormData"
+        :rules="cheatToolFormRules"
+        ref="cheatToolFormRef"
+        label-width="120px"
+        label-position="left"
+      >
+        <el-form-item label="Name" prop="name">
+          <el-input v-model="cheatToolFormData.name" />
         </el-form-item>
-        <el-form-item label="Domain">
-          <el-input v-model="formData.domain" />
+        <el-form-item label="Domain" prop="domain">
+          <el-input v-model="cheatToolFormData.domain" />
         </el-form-item>
-        <el-form-item label="Link">
-          <el-input v-model="formData.link" />
+        <el-form-item label="Link" prop="link">
+          <el-input v-model="cheatToolFormData.link" />
         </el-form-item>
-        <el-form-item label="IPs (comma separated)">
+        <el-form-item label="IPs (comma separated)" prop="ip_list">
           <el-input v-model="ipString" />
         </el-form-item>
-        <el-form-item label="Win Process">
-          <el-input v-model="formData.process_win" />
+        <el-form-item label="Win Process" prop="process_win">
+          <el-input v-model="cheatToolFormData.process_win" />
         </el-form-item>
-        <el-form-item label="Mac Process">
-          <el-input v-model="formData.process_mac" />
+        <el-form-item label="Mac Process" prop="process_mac">
+          <el-input v-model="cheatToolFormData.process_mac" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">
+        <el-button @click="cheatToolDialogVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="confirmLoading" @click="handleSave">
+        <el-button type="primary" :loading="savingProgress" @click="handleSave">
           Save
         </el-button>
       </template>
@@ -264,6 +315,7 @@ watch([() => pagination.currentPage, () => pagination.pageSize], searchList, { i
 .search-wrapper {
   margin-bottom: 20px;
 }
+
 .toolbar-wrapper {
   display: flex;
   justify-content: space-between;

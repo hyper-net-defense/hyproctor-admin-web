@@ -1,86 +1,196 @@
 <script setup lang="ts">
+import type { IVirtualCamera } from '@/@types';
+import { Plus, Refresh, RefreshRight, Search } from '@element-plus/icons-vue';
 import { ref } from 'vue';
-import { addVirtualCamera, deleteVirtualCamera, updateVirtualCamera } from '@/common/apis/virtual_camera';
+import { addVirtualCamera, deleteVirtualCamera, getVirtualCameraList, updateVirtualCamera } from '@/common/apis/virtual_camera';
+import { usePagination } from '@/common/composables/usePagination';
 
-const filters = ref({ name: '' });
-const list = ref<any[]>([]);
-const total = ref(0);
-const page = ref(1);
-const pageSize = ref(10);
-
-const dialogVisible = ref(false);
-const dialogTitle = ref('');
-const formData = ref<any>({ id: '', name: '', pattern: '' });
-
-async function fetchList() {
-  // const res: any = await getVirtualCameraList({ name: filters.value.name, page: page.value - 1, page_size: pageSize.value });
-  // list.value = res.data ?? res;
-  // total.value = res.pagination?.total ?? res.total ?? 0;
+interface TVirtualCameraForm {
+  id?: string;
+  name: string;
+  pattern: string;
 }
 
-function onPageChange(p: number) {
-  page.value = p;
-  fetchList();
+const loadingProgress = ref<boolean>(false);
+const savingProgress = ref<boolean>(false);
+const deletingProgress = ref<boolean>(false);
+
+const searchFormData = ref({ name: '' });
+const searchFormRef = useTemplateRef('searchFormRef');
+const virtualCameraList = ref<IVirtualCamera[]>([]);
+
+const virtualCameraDialogVisible = ref<boolean>(false);
+const virtualCameraDialogTitle = ref<string>('');
+const virtualCameraFormData = ref<TVirtualCameraForm>({ id: '', name: '', pattern: '' });
+const virtualCameraFormRules = reactive({
+  name: [{ required: true, trigger: 'blur', message: 'The name is required.' }],
+  pattern: [{ required: true, trigger: 'blur', message: 'The pattern is required.' }]
+});
+const virtualCameraFormRef = useTemplateRef('virtualCameraFormRef');
+
+const { paginationData, handleCurrentChange, handleSizeChange } = usePagination();
+
+function searchVirtualCameraList() {
+  if (loadingProgress.value) return;
+
+  loadingProgress.value = true;
+  const payload = {
+    name: searchFormData.value.name,
+    curPage: paginationData.currentPage,
+    pageSize: paginationData.pageSize
+  };
+  getVirtualCameraList(payload)
+    .then((res) => {
+      if (res.success && res.data && res.pagination) {
+        virtualCameraList.value = res.data.virtual_camera_list;
+        paginationData.total = res.pagination.total;
+      } else {
+        virtualCameraList.value = [];
+        paginationData.total = 0;
+      }
+    })
+    .finally(() => {
+      loadingProgress.value = false;
+    });
 }
 
-function openDialog(row?: any) {
+function handleVirtualCameraDialogOpen(row?: IVirtualCamera) {
   if (row) {
-    dialogTitle.value = 'Edit';
-    formData.value = { ...row };
+    virtualCameraDialogTitle.value = 'Edit';
+    virtualCameraFormData.value = { ...row };
   } else {
-    dialogTitle.value = 'Add New';
-    formData.value = { id: '', name: '', pattern: '' };
+    virtualCameraDialogTitle.value = 'Add New';
+    virtualCameraFormData.value = { id: '', name: '', pattern: '' };
   }
-  dialogVisible.value = true;
+  virtualCameraDialogVisible.value = true;
 }
 
-async function handleSave() {
-  if (formData.value.id)
-    await updateVirtualCamera(formData.value);
-  else
-    await addVirtualCamera(formData.value);
-  dialogVisible.value = false;
-  fetchList();
+function handleSave() {
+  if (savingProgress.value) return;
+
+  savingProgress.value = true;
+
+  virtualCameraFormRef.value?.validate((valid: boolean) => {
+    if (!valid) {
+      ElMessage.error('The form validation failed.');
+      savingProgress.value = false;
+      return;
+    }
+
+    if (virtualCameraFormData.value.id) {
+      updateVirtualCamera(virtualCameraFormData.value)
+        .then((res) => {
+          if (res.success) {
+            ElMessage.success('Succeed to update.');
+            virtualCameraDialogVisible.value = false;
+            searchVirtualCameraList();
+          } else {
+            ElMessage.error('Failed to update.');
+          }
+        })
+        .finally(() => {
+          savingProgress.value = false;
+        });
+    } else {
+      addVirtualCamera(virtualCameraFormData.value)
+        .then((res) => {
+          if (res.success) {
+            ElMessage.success('Succeed to add.');
+            virtualCameraDialogVisible.value = false;
+            searchVirtualCameraList();
+          } else {
+            ElMessage.error('Failed to add.');
+          }
+        })
+        .finally(() => {
+          savingProgress.value = false;
+        });
+    }
+  });
 }
 
-async function handleDelete(id: string) {
-  await deleteVirtualCamera(id);
-  fetchList();
+function handleDelete(row: IVirtualCamera) {
+  ElMessageBox.confirm(`Are you sure to delete this app "${row.name}"?`, 'Confirm', { type: 'warning' })
+    .then(() => {
+      if (!row.id) return;
+      if (deletingProgress.value) return;
+
+      deletingProgress.value = true;
+
+      deleteVirtualCamera(row.id)
+        .then((res) => {
+          if (res.success) {
+            ElMessage.success('Succeed to delete.');
+            searchVirtualCameraList();
+          } else {
+            ElMessage.error('');
+          }
+        })
+        .finally(() => {
+          deletingProgress.value = false;
+        });
+    })
+    .catch(() => {
+      deletingProgress.value = false;
+    });
 }
 
-fetchList();
+function handleResetSearch() {
+  searchFormRef.value?.resetFields();
+  searchVirtualCameraList();
+}
+
+watch([() => paginationData.currentPage, () => paginationData.pageSize], searchVirtualCameraList, { immediate: true });
 </script>
 
 <template>
   <div class="app-container">
     <el-card shadow="never" class="search-wrapper">
-      <el-form :inline="true">
-        <el-form-item>
-          <el-input v-model="filters.name" placeholder="Search name" clearable />
+      <el-form :inline="true" ref="searchFormRef" :model="searchFormData">
+        <el-form-item label="Name" prop="name">
+          <el-input v-model="searchFormData.name" placeholder="Search name" clearable />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="fetchList">
+          <el-button type="primary" :icon="Search" @click="searchVirtualCameraList">
             Search
           </el-button>
-        </el-form-item>
-        <el-form-item style="float:right">
-          <el-button type="primary" @click="openDialog()">
-            Add New
+          <el-button :icon="Refresh" @click="handleResetSearch">
+            Reset
           </el-button>
         </el-form-item>
       </el-form>
     </el-card>
-    <el-card v-loading="false" shadow="never">
+    <el-card v-loading="loadingProgress || deletingProgress" shadow="never">
+      <div class="toolbar-wrapper">
+        <div />
+        <div>
+          <el-tooltip content="Add new">
+            <el-button type="primary" :icon="Plus" circle @click="handleVirtualCameraDialogOpen()" />
+          </el-tooltip>
+          <el-tooltip content="Refresh current page">
+            <el-button type="primary" :icon="RefreshRight" circle @click="searchVirtualCameraList" />
+          </el-tooltip>
+        </div>
+      </div>
       <div class="table-wrapper">
-        <el-table :data="list" stripe>
+        <el-table :data="virtualCameraList" stripe>
           <el-table-column prop="name" label="Name" />
           <el-table-column prop="pattern" label="Pattern" />
-          <el-table-column label="Action">
+          <el-table-column label="Action" width="150">
             <template #default="{ row }">
-              <el-button type="text" @click="openDialog(row)">
+              <el-button
+                plain
+                type="primary"
+                size="small"
+                @click="handleVirtualCameraDialogOpen(row)"
+              >
                 Edit
               </el-button>
-              <el-button type="text" @click="handleDelete(row.id)">
+              <el-button
+                type="danger"
+                size="small"
+                @click="handleDelete(row)"
+              >
                 Delete
               </el-button>
             </template>
@@ -88,23 +198,31 @@ fetchList();
         </el-table>
       </div>
       <div class="pager-wrapper">
-        <el-pagination :total="total" :page-size="pageSize" :current-page="page" @current-change="onPageChange" />
+        <el-pagination
+          background
+          :layout="paginationData.layout"
+          :total="paginationData.total"
+          :page-size="paginationData.pageSize"
+          :current-page="paginationData.currentPage"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
+        />
       </div>
     </el-card>
-    <el-dialog :title="dialogTitle" v-model:visible="dialogVisible">
-      <el-form :model="formData">
-        <el-form-item label="Name">
-          <el-input v-model="formData.name" />
+    <el-dialog :title="virtualCameraDialogTitle" v-model="virtualCameraDialogVisible" width="500px">
+      <el-form :model="virtualCameraFormData" :rules="virtualCameraFormRules" ref="virtualCameraFormRef" label-width="120px" label-position="left">
+        <el-form-item label="Name" prop="name">
+          <el-input v-model="virtualCameraFormData.name" />
         </el-form-item>
-        <el-form-item label="Pattern">
-          <el-input v-model="formData.pattern" />
+        <el-form-item label="Pattern" prop="pattern">
+          <el-input v-model="virtualCameraFormData.pattern" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">
+        <el-button @click="virtualCameraDialogVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" @click="handleSave">
+        <el-button type="primary" :loading="savingProgress" @click="handleSave">
           Save
         </el-button>
       </template>
