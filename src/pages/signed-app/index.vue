@@ -82,7 +82,7 @@ function handleSave() {
   if (savingProgress.value)
     return;
   savingProgress.value = true;
-  signedAppFormRef.value?.validate(async (valid) => {
+  signedAppFormRef.value?.validate((valid) => {
     if (!valid) {
       ElMessage.error('The form validation failed.');
       savingProgress.value = false;

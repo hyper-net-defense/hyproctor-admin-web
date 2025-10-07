@@ -72,7 +72,7 @@ function handleSave() {
     return;
 
   savingProgress.value = true;
-  blackDomainFormRef.value?.validate(async (valid) => {
+  blackDomainFormRef.value?.validate((valid) => {
     if (!valid) {
       ElMessage.error('Form validation failed.');
       savingProgress.value = false;
